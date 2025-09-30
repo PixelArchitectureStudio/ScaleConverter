@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ابزار تبدیل مقیاس</title>
+  <style>
+    :root { --bg:#0f1320; --card:#161a2b; --muted:#8ea0b9; --text:#eef3ff; --accent:#7aa2ff; }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);}    
+    .wrap{max-width:860px;margin:40px auto;padding:24px}
+    h1{font-size:22px;margin:0 0 16px}
+    p.desc{margin:0 0 22px;color:var(--muted)}
+    .card{background:linear-gradient(180deg, #1a1f36, #121629);border:1px solid #2a2f47; padding:18px;border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    label{display:block;font-size:12px;color:#aab8d8;margin:0 0 6px}
+    select,input{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2b3152;background:#0f1326;color:var(--text);outline:none}
+    input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0;}
+    .grid{display:grid;gap:16px}
+    .hint{font-size:12px;color:#94a3c7}
+    .out{background:linear-gradient(180deg, #0f1428, #0b1022);padding:16px;border-radius:14px;border:1px dashed #2f365e;position:relative}
+    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .big{font-size:28px; font-weight:700}
+    .copy{cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:#cdd7ff;border-radius:10px;padding:8px 10px}
+    .flex{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+    .hstack{display:flex; align-items:center; gap:8px}
+    .toggle-inline{display:inline-flex; align-items:center; gap:0; white-space:nowrap}
+    .toggle-inline .hint{margin:0; line-height:1; padding:0; transform: translateX(-4px);} 
+    .toggle-inline input[type="checkbox"]{margin:0; padding:0; width:16px; height:16px; vertical-align:middle;}
+    .footer{margin-top:16px; color:#90a4d4; font-size:12px}
+    .ig-link{display:inline-flex;align-items:center;gap:6px;margin-inline-start:8px;color:#cdd7ff;text-decoration:none;border:1px solid #2b3152;padding:4px 8px;border-radius:8px}
+    .ig-link:hover{border-color:#7aa2ff}
+    .ig{width:14px;height:14px}
+    .handle{display:inline-flex; flex-direction:row; align-items:center; gap:0; direction:ltr; white-space:nowrap; line-height:1}
+    .handle .at{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; display:inline}
+    .swap{position:relative}
+    .swap > *{width:100%}
+    .swap.manual #scaleSelect{display:none}
+    .swap.manual #scaleN{display:block}
+    .swap:not(.manual) #scaleSelect{display:block}
+    .swap:not(.manual) #scaleN{display:none}
+
+    /* --- Light/Dark theme switch --- */
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .actions{display:flex;align-items:center;gap:10px}
+    .icon-btn{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:0;font-size:16px}
+    .switch{position:relative;cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;width:54px;height:28px;padding:0}
+    .switch span{pointer-events:none}
+    .switch .thumb{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:999px;background:var(--accent);box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .25s ease}
+    .switch .icon{position:absolute;top:50%;transform:translateY(-50%);font-size:12px;opacity:.9}
+    .switch .icon.sun{left:8px}
+    .switch .icon.moon{right:8px}
+    .switch[data-mode="light"] .thumb{transform:translateX(26px)}
+
+    /* Light overrides */
+    body.light{background:linear-gradient(180deg,#ffffff,#f6f8ff);color:#0d1220}
+    body.light .card{background:#ffffff;border-color:#e2e8f0;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+    body.light label{color:#56617a}
+    body.light select, body.light input{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+    body.light .out{background:#f4f6fb;border-color:#d0d8e6}
+    body.light .copy{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+    body.light .hint{color:#64748b}
+    body.light .footer{color:#5f6b88}
+    body.light .ig-link{color:#334155;border-color:#cbd5e1}
+    body.light .ig-link:hover{border-color:#3b82f6}
+    body.light .switch{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+
+    /* History popover */
+    .hist-pop{position:absolute; right:12px; top:100%; margin-top:8px; background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:260px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:70}
+    .hist-pop.hidden{display:none}
+    .hist-head{font-size:12px; color:#94a3c7; margin:0 0 6px}
+    .hist-list{list-style:none; padding:0; margin:0; max-height:220px; overflow:auto}
+    .hist-list li{font-size:13px; padding:6px 0; border-bottom:1px dashed #2f365e}
+    .hist-list li:last-child{border-bottom:none}
+    .hist-empty{font-size:12px; color:#94a3c7}
+    body.light .hist-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
+
+    .hstack.toggle-inline{gap:0 !important;}
+    .ltr{direction:ltr;text-align:left}
+      /* Calc button custom style */
+    #calcBtn{background:#7aa2ff;border-color:#7aa2ff;color:#0b1022;width:100%;padding:12px 14px;font-weight:600;font-family:inherit}
+    #calcBtn:hover{filter:brightness(.95)}
+    #calcBtn:active{transform:translateY(1px)}
+    body.light #calcBtn{background:#7aa2ff;border-color:#7aa2ff;color:#0b1022}
+      /* custom white arrow for <select> boxes */
+    select{
+      -webkit-appearance:none; -moz-appearance:none; appearance:none;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%23ffffff'/></svg>");
+      background-repeat:no-repeat;
+      background-position:12px center; /* فلش سمت چپ */
+      background-size:14px 14px;
+      /* راست‌چین شدن متن داخل سلکت */
+      text-align:right;            /* برای گزینه‌ها در برخی مرورگرها */
+      text-align-last:right;       /* متن انتخاب‌شده */
+      direction:rtl;               /* جهت نوشتار */
+      /* فضا برای فلش سمت چپ تا روی متن نیفته */
+      padding-left:36px;           /* سمت چپ چون فلش آنجاست */
+      padding-right:12px;
+    }
+    /* Keep arrow visible on light theme as well (white fill + subtle stroke for contrast) */
+    body.light select{
+      /* Unify arrow shape; only color changes in light mode */
+      -webkit-appearance:none; -moz-appearance:none; appearance:none;
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%230d1220'/></svg>");
+      background-repeat:no-repeat;
+      background-position:12px center;  /* same position as dark */
+      background-size:14px 14px;        /* same size as dark */
+      padding-left:36px;                /* keep room for arrow on the left */
+      text-align:right; text-align-last:right; direction:rtl;
+    }
+    /* Hide legacy IE arrow */
+    select::-ms-expand{display:none}
+    /* دراپ‌داون گزینه‌ها نیز راست‌چین شوند */
+    select option{direction:rtl; text-align:right;}
+      /* Footer bar with version on the opposite side */
+    .footer-bar{display:flex;align-items:center;justify-content:space-between;position:relative}
+    .version{color:#90a4d4;font-size:12px;border:1px solid #2b3152;border-radius:10px;padding:4px 10px;background:#0f1326;cursor:pointer}
+    body.light .version{color:#0d1220;border-color:#cbd5e1;background:#ffffff}
+      /* Version popover */
+    .ver-pop{position:absolute; left:12px; bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:280px; padding:12px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:90}
+    .ver-pop.hidden{display:none}
+    .ver-title{font-weight:700; margin-bottom:6px}
+    .ver-hint{font-size:12px; color:#94a3c7; margin-top:6px}
+    body.light .ver-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
+      /* Fit viewport & remove page scroll */
+    html, body{height:100%}
+    body{min-height:100svh;height:100dvh;overflow:hidden}
+    @supports (height: 100dvh){ body{height:100dvh} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <h1>ابزار تبدیل مقیاس</h1>
+      <div class="actions">
+        <button id="themeToggle" class="switch" aria-label="تغییر حالت روشن/تاریک" data-mode="dark">
+          <span class="icon sun" aria-hidden="true">☀️</span>
+          <span class="icon moon" aria-hidden="true">🌙</span>
+          <span class="thumb" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+    <p class="desc">واحد دنیای واقعی را انتخاب کنید (همیشه <strong>۱:۱</strong>)، سپس مقیاس هدف <strong>۱:N</strong> و واحد نقشه را برگزینید. مقدار واقعی را وارد کنید تا اندازه روی نقشه محاسبه شود.</p>
+
+    <div class="card grid" role="form" aria-label="فرم مبدّل مقیاس">
+      <div class="row-3">
+        <div>
+          <label for="realUnit">واحد واقعی (۱:۱)</label>
+          <select id="realUnit" aria-label="واحد واقعی">
+            <option value="mm">میلی‌متر (mm)</option>
+            <option value="cm">سانتی‌متر (cm)</option>
+            <option value="m" selected>متر (m)</option>
+            <option value="km">کیلومتر (km)</option>
+            <option value="in">اینچ (in)</option>
+            <option value="ft">فوت (ft)</option>
+            <option value="yd">یارد (yd)</option>
+            <option value="mi">مایل (mi)</option>
+            <option value="nmi">مایل دریایی (nmi)</option>
+          </select>
+        </div>
+        <div>
+          <label for="scaleSelect">مقیاس هدف — ۱:N</label>
+          <div class="grid" style="gap:8px">
+            <div id="scaleSwap" class="swap">
+              <select id="scaleSelect" aria-label="انتخاب مقیاس">
+                <optgroup label="جزئیات (Detail)">
+                  <option value="1">۱:۱</option>
+                  <option value="2">۱:۲</option>
+                  <option value="5">۱:۵</option>
+                  <option value="10">۱:۱۰</option>
+                </optgroup>
+                <optgroup label="نقشه‌های معماری (Plans)">
+                  <option value="20">۱:۲۰</option>
+                  <option value="25">۱:۲۵</option>
+                  <option value="50">۱:۵۰</option>
+                  <option value="75">۱:۷۵</option>
+                  <option value="100">۱:۱۰۰</option>
+                  <option value="125">۱:۱۲۵</option>
+                  <option value="150">۱:۱۵۰</option>
+                  <option value="200" selected>۱:۲۰۰</option>
+                  <option value="250">۱:۲۵۰</option>
+                </optgroup>
+                <optgroup label="سایت/شهر (Site/Urban)">
+                  <option value="400">۱:۴۰۰</option>
+                  <option value="500">۱:۵۰۰</option>
+                  <option value="1000">۱:۱۰۰۰</option>
+                  <option value="2000">۱:۲۰۰۰</option>
+                  <option value="5000">۱:۵۰۰۰</option>
+                </optgroup>
+              </select>
+              <input id="scaleN" type="number" min="1" step="1" value="200" aria-label="عدد N مقیاس" class="ltr" />
+            </div>
+            <label class="hstack toggle-inline">
+              <input type="checkbox" id="manualToggle" />
+              <span class="hint">ورود مقدار دلخواه مقیاس هدف</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label for="targetUnit">واحد نقشه</label>
+          <select id="targetUnit" aria-label="واحد نقشه">
+            <option value="mm">میلی‌متر (mm)</option>
+            <option value="cm" selected>سانتی‌متر (cm)</option>
+            <option value="m">متر (m)</option>
+            <option value="km">کیلومتر (km)</option>
+            <option value="in">اینچ (in)</option>
+            <option value="ft">فوت (ft)</option>
+            <option value="yd">یارد (yd)</option>
+            <option value="mi">مایل (mi)</option>
+            <option value="nmi">مایل دریایی (nmi)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="realValue"><span id="inputLabel">اندازه واقعی (فقط عدد)</span></label>
+          <input id="realValue" type="text" inputmode="decimal" placeholder="مثلاً ۱۲٫۵ یا 12.5" aria-label="اندازه واقعی" class="ltr" dir="ltr" />
+          <div class="hint" id="realHint">واحد: m</div>
+          <div class="flex" style="margin-top:8px">
+            <button type="button" class="copy" id="calcBtn" title="محاسبه">محاسبه</button>
+          </div>
+        </div>
+        <div>
+          <label><span id="outputLabel">اندازهٔ روی نقشه (محاسبه‌شده)</span></label>
+          <div class="out">
+            <div class="big mono" id="outVal">—</div>
+            <div class="hint" id="outUnit">واحد: cm</div>
+            <div class="flex" style="margin-top:8px">
+              <button type="button" class="copy" id="copyBtn" title="کپی مقدار">کپی</button>
+              <button type="button" class="copy" id="histBtn" title="تاریخچه ۱۰ مقدار اخیر">🕘</button>
+              <button id="swapBtn" class="copy icon-btn" title="تبدیل جهت (نقشه ↔ واقعی)" aria-pressed="false">⇄</button>
+              <span class="hint" id="copyNote"></span>
+            </div>
+            <div id="histPop" class="hist-pop hidden" role="dialog" aria-label="تاریخچه ۱۰ مقدار اخیر">
+              <div class="hist-head">تاریخچه (۱۰ مقدار اخیر)</div>
+              <ul id="histList" class="hist-list"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="hint">جزئیات مبدل: <span class="mono" id="detail">۱ (واحد واقعی) → ؟ (واحد نقشه) در مقیاس ۱:N</span></div>
+        <div class="footer footer-bar">
+          <div>ساخته شده توسط <strong>Pixel Studio</strong>
+            <a class="ig-link" href="https://instagram.com/Pixel_architecture_studio" target="_blank" rel="noopener" aria-label="Instagram: @Pixel_architecture_studio">
+              <svg class="ig" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="1.5"></rect>
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"></circle>
+                <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"></circle>
+              </svg>
+              <span class="handle"><span class="at" aria-hidden="true">@</span><span class="mono ltr">pixel_architecture_studio</span></span>
+            </a>
+          </div>
+          <button id="versionBtn" class="version mono ltr" type="button" aria-haspopup="dialog" aria-expanded="false" title="اطلاعات نسخه">v1.2</button>
+          <div id="verPop" class="ver-pop hidden" role="dialog" aria-label="اطلاعات نسخه">
+            <div class="ver-title">نرم‌افزار تبدیل مقیاس</div>
+            <div>نسخه <span class="mono ltr">1.2</span></div>
+            <div class="ver-hint">برای باخبر شدن از آخرین آپدیت‌ نرم افزار و پروژه‌های جدید نرم‌افزاری، پیج Pixel Studio رو فالو کنید.</div>
+            <a class="ig-link" href="https://instagram.com/Pixel_architecture_studio" target="_blank" rel="noopener" aria-label="Instagram: @Pixel_architecture_studio">
+              <svg class="ig" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="1.5"></rect>
+                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.5"></circle>
+                <circle cx="17.5" cy="6.5" r="1.2" fill="currentColor"></circle>
+              </svg>
+              <span class="handle"><span class="at" aria-hidden="true">@</span><span class="mono ltr">pixel_architecture_studio</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer" style="margin-top:10px">نکته: برای مقیاس‌دادن به هندسه در CAD از <span class="mono ltr">scale factor = 1 / N</span> استفاده کنید (مثلاً برای <span class="mono ltr">1:200</span>، ضریب <span class="mono ltr">0.005</span> است). این ابزار تبدیل واحدها را با همین مقیاس انجام می‌دهد.</div>
+  </div>
+
+  <script>
+    const unitToMM = { mm:1, cm:10, m:1000, km:1000000, in:25.4, ft:304.8, yd:914.4, mi:1609344, nmi:1852000 };
+    const el = (id) => document.getElementById(id);
+
+    const realUnit = el('realUnit');
+    const targetUnit = el('targetUnit');
+    const scaleSelect = el('scaleSelect');
+    const manualToggle = el('manualToggle');
+    const scaleSwap = el('scaleSwap');
+    const scaleN = el('scaleN');
+    const realValue = el('realValue');
+    const outVal = el('outVal');
+    const outUnit = el('outUnit');
+    const realHint = el('realHint');
+    const detail = el('detail');
+    const copyBtn = el('copyBtn');
+    const copyNote = el('copyNote');
+    const themeToggle = el('themeToggle');
+    const swapBtn = el('swapBtn');
+    const inputLabel = el('inputLabel');
+    const outputLabel = el('outputLabel');
+    const histBtn = el('histBtn');
+    const histPop = el('histPop');
+    const histList = el('histList');
+    const calcBtn = el('calcBtn');
+    const versionBtn = el('versionBtn');
+    const verPop = el('verPop');
+    let lastSavedOut = '';
+    let reverseMode = false;
+
+    function fmt(n){ if (Number.isNaN(n)) return '—'; return n.toFixed(6).replace(/\.0+$/,'').replace(/(\.[0-9]*?)0+$/, '$1'); }
+
+    function updateHints(){
+      if (reverseMode){
+        realHint.textContent = `واحد: ${targetUnit.value}`; // input in drawing units
+        outUnit.textContent = `واحد: ${realUnit.value}`;    // output in real units
+      } else {
+        realHint.textContent = `واحد: ${realUnit.value}`;
+        outUnit.textContent = `واحد: ${targetUnit.value}`;
+      }
+    }
+
+    function applyTheme(theme){
+      if (theme === 'light') document.body.classList.add('light');
+      else document.body.classList.remove('light');
+      if (themeToggle){ const isLight = document.body.classList.contains('light'); themeToggle.setAttribute('data-mode', isLight ? 'light' : 'dark'); }
+    }
+
+    function initTheme(){
+      let theme = localStorage.getItem('theme');
+      if (!theme){ try { theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark'; } catch(e){ theme = 'dark'; } }
+      applyTheme(theme);
+    }
+
+    function setManualUI(){ const manual = manualToggle && manualToggle.checked; scaleN.disabled = !manual; scaleSelect.disabled = manual; if (scaleSwap) scaleSwap.classList.toggle('manual', manual); }
+
+    function calcDrawing(rv, rU, N, tU){ const realMM = rv * unitToMM[rU]; const drawingMM = realMM / N; return drawingMM / unitToMM[tU]; }
+
+    function normalizeNumber(str){
+      if (!str) return '';
+      var s = String(str);
+      var fa = '۰۱۲۳۴۵۶۷۸۹';
+      var ar = '٠١٢٣٤٥٦٧٨٩';
+      s = s.replace(/[۰-۹]/g, d => String(fa.indexOf(d)))
+           .replace(/[٠-٩]/g, d => String(ar.indexOf(d)));
+      s = s.replace(/[٬,\s\u00A0]/g, ''); // remove thousands (Arabic comma, comma), spaces, NBSP
+      s = s.replace(/[٫،]/g, '.'); // Arabic/Persian decimal marks → dot
+      s = s.replace(/[^0-9.+-]/g, '');
+      return s;
+    }
+
+    function compute(){
+      const rv = parseFloat(normalizeNumber(realValue.value));
+      const manual = manualToggle && manualToggle.checked;
+      const N = manual ? parseFloat(scaleN.value) : parseFloat(scaleSelect.value);
+      const rU = realUnit.value; const tU = targetUnit.value;
+      updateHints();
+      if (!rv || rv < 0 || !N || N <= 0){ const nLabel = (N && N > 0) ? fmt(N) : (manual ? 'N' : (scaleSelect.value || 'N')); outVal.textContent = '—'; detail.textContent = reverseMode ? `۱ ${tU} → ؟ ${rU} در مقیاس ۱:${nLabel}` : `۱ ${rU} → ؟ ${tU} در مقیاس ۱:${nLabel}`; return; }
+      if (reverseMode){
+        // input is drawing value; compute real value
+        const realVal = (rv * unitToMM[tU] * N) / unitToMM[rU];
+        outVal.textContent = `${fmt(realVal)} ${rU}`; addToHistory(outVal.textContent,{rv, rU, tU, N, reverse:true});
+        const oneTargetToReal = (unitToMM[tU] * N) / unitToMM[rU];
+        detail.textContent = `۱ ${tU} = ${fmt(oneTargetToReal)} ${rU}  (مقیاس ۱:${fmt(N)})`;
+      } else {
+        // normal: input is real value; compute drawing value
+        const drawingVal = calcDrawing(rv, rU, N, tU);
+        outVal.textContent = `${fmt(drawingVal)} ${tU}`; addToHistory(outVal.textContent,{rv, rU, tU, N, reverse:false});
+        const oneRealToTarget = (unitToMM[rU] / N) / unitToMM[tU];
+        detail.textContent = `۱ ${rU} = ${fmt(oneRealToTarget)} ${tU}  (مقیاس ۱:${fmt(N)})`;
+      }
+    }
+
+    function clearOutput(){
+      const manual = manualToggle && manualToggle.checked;
+      const N = manual ? parseFloat(scaleN.value) : parseFloat(scaleSelect.value);
+      const rU = realUnit.value; const tU = targetUnit.value;
+      outVal.textContent = '—';
+      const nLabel = (N && N > 0) ? fmt(N) : (manual ? 'N' : (scaleSelect.value || 'N'));
+      detail.textContent = reverseMode ? `۱ ${tU} → ؟ ${rU} در مقیاس ۱:${nLabel}` : `۱ ${rU} → ؟ ${tU} در مقیاس ۱:${nLabel}`;
+    }
+
+    realUnit.addEventListener('change', ()=>{ updateHints(); clearOutput(); });
+    targetUnit.addEventListener('change', ()=>{ updateHints(); clearOutput(); });
+    scaleSelect.addEventListener('change', ()=>{ clearOutput(); });
+    manualToggle.addEventListener('change', ()=>{ setManualUI(); updateHints(); clearOutput(); });
+    scaleN.addEventListener('input', clearOutput);
+    realValue.addEventListener('input', clearOutput);
+    // Pressing Enter in the real value input triggers calculation
+    realValue.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === 'NumpadEnter'){
+        e.preventDefault();
+        compute();
+      }
+    });
+    if (calcBtn) calcBtn.addEventListener('click', compute);
+    if (themeToggle) themeToggle.addEventListener('click', function(){ const isLight = !document.body.classList.contains('light'); applyTheme(isLight ? 'light' : 'dark'); localStorage.setItem('theme', isLight ? 'light' : 'dark'); });
+
+    copyBtn.addEventListener('click', async () => {
+      const raw = outVal.textContent || ''; let val = raw.trim();
+      if (!val || val === '—') { copyNote.textContent = 'ابتدا مقدار را محاسبه کنید'; setTimeout(()=>{ copyNote.textContent=''; }, 1500); return; }
+      const units = ['mm','cm','m','km','in','ft','yd','mi','nmi']; for (let i=0;i<units.length;i++){ const u=units[i]; if (val.endsWith(' '+u)) { val = val.slice(0, -(u.length+1)); break; } }
+      let ok = false; if (navigator.clipboard && window.isSecureContext) { try { await navigator.clipboard.writeText(val); ok = true; } catch(e) { ok = false; } }
+      if (!ok) { try { const ta=document.createElement('textarea'); ta.value=val; ta.style.position='fixed'; ta.style.left='-1000px'; ta.style.top='-1000px'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try { ta.setSelectionRange(0, ta.value.length); } catch(e){} ok = document.execCommand('copy'); document.body.removeChild(ta); } catch(e) { ok=false; } }
+      copyNote.textContent = ok ? 'کپی شد!' : 'کپی ناموفق'; setTimeout(()=>{ copyNote.textContent=''; }, 1500);
+    });
+
+    // ---- History helpers ----
+    function readHistory(){ try { return JSON.parse(localStorage.getItem('hist')||'[]'); } catch(e){ return []; } }
+    function writeHistory(arr){ try { localStorage.setItem('hist', JSON.stringify(arr.slice(0,10))); } catch(e){} }
+    function renderHistory(){
+      if (!histList) return;
+      const arr = readHistory();
+      if (!arr.length){ histList.innerHTML = '<li class="hist-empty">خالی</li>'; return; }
+      histList.innerHTML = arr.map(i => {
+        const m = i.meta || {};
+        const rvStr = m && m.reverse ? i.out : `${fmt(m.rv)} ${m.rU || ''}`;
+        const scaleStr = (m && typeof m.N !== 'undefined' && !Number.isNaN(m.N)) ? `۱:${fmt(m.N)}` : '۱:N';
+        const outStr = i.out; // already includes unit
+        const info = `اندازه واقعی: ${rvStr} | مقیاس ${scaleStr}`;
+        return `<li class="hist-li"><div class="mono">${outStr}</div><div class="hint">${info}</div></li>`;
+      }).join('');
+    }
+    function addToHistory(outText, meta){ if (!outText || outText==='—') return; const arr = readHistory(); if (arr.length && arr[0].out === outText) return; arr.unshift({out: outText, meta: meta||null, t: Date.now()}); writeHistory(arr); if (histPop && !histPop.classList.contains('hidden')) renderHistory(); lastSavedOut = outText; }
+    function toggleHistory(show){ if (!histPop) return; const open = !histPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ histPop.classList.remove('hidden'); renderHistory(); } else { histPop.classList.add('hidden'); } }
+    if (histBtn){ histBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(); }); }
+    function toggleVersion(show){ if (!verPop || !versionBtn) return; const open = !verPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ verPop.classList.remove('hidden'); versionBtn.setAttribute('aria-expanded','true'); } else { verPop.classList.add('hidden'); versionBtn.setAttribute('aria-expanded','false'); } }
+    if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
+    document.addEventListener('click', function(e){
+      if (histPop && !histPop.classList.contains('hidden')){
+        if (!(histPop.contains(e.target) || (histBtn && histBtn.contains(e.target)))) toggleHistory(false);
+      }
+      if (verPop && !verPop.classList.contains('hidden')){
+        if (!(verPop.contains(e.target) || (versionBtn && versionBtn.contains(e.target)))) toggleVersion(false);
+      }
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ toggleHistory(false); toggleVersion(false); } });
+
+    function applyModeUI(){ if (inputLabel && outputLabel){ if (reverseMode){ inputLabel.textContent = 'اندازه روی نقشه (ورودی)'; outputLabel.textContent = 'اندازه واقعی (محاسبه‌شده)'; } else { inputLabel.textContent = 'اندازه واقعی (فقط عدد)'; outputLabel.textContent = 'اندازهٔ روی نقشه (محاسبه‌شده)'; } } }
+
+    if (swapBtn){ swapBtn.addEventListener('click', function(){ reverseMode = !reverseMode; try { localStorage.setItem('reverseMode', reverseMode ? '1' : '0'); } catch(e){} this.setAttribute('aria-pressed', reverseMode ? 'true' : 'false'); applyModeUI(); updateHints(); clearOutput(); }); }
+
+    // ===== Initialize =====
+    initTheme();
+    try { reverseMode = localStorage.getItem('reverseMode') === '1'; } catch(e) { reverseMode = false; }
+    if (swapBtn) swapBtn.setAttribute('aria-pressed', reverseMode ? 'true' : 'false');
+    applyModeUI();
+
+    // Per request: always start with an empty history on each open
+    try { localStorage.removeItem('hist'); } catch(e) {}
+
+    updateHints();
+    setManualUI();
+    clearOutput();
+
+    // ===== Console self-tests =====
+    (function(){
+      const tests = [];
+      // normalizeNumber
+      tests.push({name:'Persian digits → Latin', got: normalizeNumber('۱۲۳۴۵۶۷۸۹۰'), expect:'1234567890'});
+      tests.push({name:'Arabic digits → Latin', got: normalizeNumber('١٢٣٫٤٥'), expect:'123.45'});
+      tests.push({name:'Thousands & decimal', got: normalizeNumber('۱٬۲۳۴٫۵۶'), expect:'1234.56'});
+      // forward scale
+      const f1 = calcDrawing(2,'m',200,'mm'); // 2m at 1:200 → 10mm
+      const f2 = calcDrawing(1,'m',100,'cm'); // 1m at 1:100 → 1cm
+      const f3 = calcDrawing(5,'cm',5,'mm');  // 5cm at 1:5 → 10mm
+      tests.push({name:'2 m @1:200 → 10 mm', got:f1, expect:10, approx:true});
+      tests.push({name:'1 m @1:100 → 1 cm', got:f2, expect:1, approx:true});
+      tests.push({name:'5 cm @1:5 → 10 mm', got:f3, expect:10, approx:true});
+      // reverse mode check: 0.5 cm at 1:200 equals 1 m
+      const rvReal = (0.5 * unitToMM['cm'] * 200) / unitToMM['m'];
+      tests.push({name:'0.5 cm @1:200 → 1 m (reverse)', got:rvReal, expect:1, approx:true});
+      // round-trip check: forward then reverse should return original
+      const forwardVal = calcDrawing(2,'m',200,'mm');
+      const backVal = (forwardVal * unitToMM['mm'] * 200) / unitToMM['m'];
+      tests.push({name:'round-trip 2m ↔ 10mm', got:backVal, expect:2, approx:true});
+
+      let pass = 0;
+      function near(a,b,eps=1e-9){ return Math.abs(a-b) < eps; }
+      tests.forEach(t=>{ const ok = t.approx ? near(t.got,t.expect) : (t.got===t.expect); console[ok?'log':'error'](`[Test] ${t.name}:`, ok?'PASS':'FAIL', '→ got:', t.got, 'expect:', t.expect); if (ok) pass++; });
+      console.log(`[Test] ${pass}/${tests.length} passed`);
+    })();
+  </script>
+</body>
+</html>
