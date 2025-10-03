@@ -152,8 +152,15 @@
     .ver-changes{font-size:12px;color:#c9d4f2}
     body.light .ver-section .label{color:#56617a}
     body.light .ver-changes{color:#334155}
-      /* Mobile portrait: show history centered (no UI shift) */
-    @media (max-width: 520px) and (orientation: portrait){
+      /* Mobile portrait: show history as centered fixed popover to avoid layout shift */
+    
+      /* History popover header + close button */
+    .hist-top{display:flex;align-items:center;justify-content:space-between;margin:0 0 6px}
+    .hist-close{border:1px solid #2b3152;background:#0f1326;color:#cdd7ff;border-radius:8px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;line-height:1;font-size:14px}
+    .hist-close:hover{filter:brightness(.95)}
+    body.light .hist-close{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+      /* Mobile: nudge history popover further to the right (only the box) */
+    @media (max-width:520px) and (orientation: portrait){
       .hist-pop{
         position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
         right:auto; bottom:auto; margin-top:0;
@@ -268,7 +275,10 @@
               <span class="hint" id="copyNote"></span>
             </div>
             <div id="histPop" class="hist-pop hidden" role="dialog" aria-label="تاریخچه ۱۰ مقدار اخیر">
-              <div class="hist-head">تاریخچه (۱۰ مقدار اخیر)</div>
+              <div class="hist-top">
+                <div class="hist-head">تاریخچه (۱۰ مقدار اخیر)</div>
+                <button type="button" id="histClose" class="hist-close" aria-label="بستن">×</button>
+              </div>
               <ul id="histList" class="hist-list"></ul>
             </div>
           </div>
@@ -338,6 +348,7 @@
     const histBtn = el('histBtn');
     const histPop = el('histPop');
     const histList = el('histList');
+    const histClose = el('histClose');
     const calcBtn = el('calcBtn');
     const versionBtn = el('versionBtn');
     const verPop = el('verPop');
@@ -464,6 +475,7 @@
     function addToHistory(outText, meta){ if (!outText || outText==='—') return; const arr = readHistory(); if (arr.length && arr[0].out === outText) return; arr.unshift({out: outText, meta: meta||null, t: Date.now()}); writeHistory(arr); if (histPop && !histPop.classList.contains('hidden')) renderHistory(); lastSavedOut = outText; }
     function toggleHistory(show){ if (!histPop) return; const open = !histPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ histPop.classList.remove('hidden'); renderHistory(); } else { histPop.classList.add('hidden'); } }
     if (histBtn){ histBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(); }); }
+    if (histClose){ histClose.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(false); }); }
     function toggleVersion(show){ if (!verPop || !versionBtn) return; const open = !verPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ verPop.classList.remove('hidden'); versionBtn.setAttribute('aria-expanded','true'); } else { verPop.classList.add('hidden'); versionBtn.setAttribute('aria-expanded','false'); } }
     if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
     document.addEventListener('click', function(e){
