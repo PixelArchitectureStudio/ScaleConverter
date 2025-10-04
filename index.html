@@ -739,7 +739,10 @@
       document.documentElement.dir = locale.dir || 'rtl';
       if (document.title !== locale.pageTitle) document.title = locale.pageTitle;
       if (pageHeading) pageHeading.textContent = locale.heading;
-      if (descriptionEl) descriptionEl.innerHTML = locale.description;
+      if (descriptionEl){
+        descriptionEl.innerHTML = locale.description;
+        descriptionEl.classList.toggle('ltr', locale.code === 'en');
+      }
       if (realUnitLabel) realUnitLabel.textContent = locale.realUnitLabel;
       if (scaleSelectLabel) scaleSelectLabel.textContent = locale.scaleSelectLabel;
       if (targetUnitLabel) targetUnitLabel.textContent = locale.targetUnitLabel;
@@ -772,7 +775,10 @@
       if (versionHint) versionHint.textContent = locale.versionHint;
       if (versionBtn) versionBtn.setAttribute('title', locale.versionBtnTitle);
       if (verPop) verPop.setAttribute('aria-label', locale.versionBtnTitle);
-      if (footnote) footnote.innerHTML = locale.footnote;
+      if (footnote){
+        footnote.innerHTML = locale.footnote;
+        footnote.classList.toggle('ltr', locale.code === 'en');
+      }
       if (histPop) histPop.setAttribute('aria-label', locale.histDialogLabel);
       if (histHead) histHead.textContent = locale.histTitle;
       if (histClose) histClose.setAttribute('aria-label', locale.histCloseLabel);
