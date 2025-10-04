@@ -768,7 +768,11 @@
         langToggle.setAttribute('aria-label', locale.langToggleLabel);
         langToggle.dataset.lang = locale.code;
       }
-      if (langToggleText) langToggleText.textContent = locale.langButton;
+      if (langToggleText){
+        const nextLang = locale.code === 'fa' ? 'en' : 'fa';
+        const nextLocale = locales[nextLang] || locales.fa;
+        langToggleText.textContent = nextLocale.langButton;
+      }
       if (themeToggle) themeToggle.setAttribute('aria-label', locale.themeToggleLabel);
       if (realValue){
         realValue.placeholder = locale.realValuePlaceholder;
