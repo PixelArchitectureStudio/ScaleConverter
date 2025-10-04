@@ -768,16 +768,34 @@
       if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
       if (dlPop) dlPop.setAttribute('aria-label', locale.downloadAria);
       if (converterForm) converterForm.setAttribute('aria-label', locale.formAriaLabel);
-      if (versionTitle) versionTitle.textContent = locale.versionTitle;
-      if (versionLabel) versionLabel.textContent = locale.versionLabel;
-      if (versionChangesLabel) versionChangesLabel.textContent = locale.versionChangesLabel;
-      if (versionChanges) versionChanges.textContent = locale.versionChanges;
-      if (versionHint) versionHint.textContent = locale.versionHint;
+      const isEnglish = locale.code === 'en';
+      if (versionTitle){
+        versionTitle.textContent = locale.versionTitle;
+        versionTitle.classList.toggle('ltr', isEnglish);
+      }
+      if (versionLabel){
+        versionLabel.textContent = locale.versionLabel;
+        const labelRow = versionLabel.parentElement;
+        if (labelRow) labelRow.classList.toggle('ltr', isEnglish);
+      }
+      if (versionChangesLabel){
+        versionChangesLabel.textContent = locale.versionChangesLabel;
+        versionChangesLabel.classList.toggle('ltr', isEnglish);
+      }
+      if (versionChanges){
+        versionChanges.textContent = locale.versionChanges;
+        versionChanges.classList.toggle('ltr', isEnglish);
+      }
+      if (versionHint){
+        versionHint.textContent = locale.versionHint;
+        versionHint.classList.toggle('ltr', isEnglish);
+      }
+      if (verPop) verPop.classList.toggle('ltr', isEnglish);
       if (versionBtn) versionBtn.setAttribute('title', locale.versionBtnTitle);
       if (verPop) verPop.setAttribute('aria-label', locale.versionBtnTitle);
       if (footnote){
         footnote.innerHTML = locale.footnote;
-        footnote.classList.toggle('ltr', locale.code === 'en');
+        footnote.classList.toggle('ltr', isEnglish);
       }
       if (histPop) histPop.setAttribute('aria-label', locale.histDialogLabel);
       if (histHead) histHead.textContent = locale.histTitle;
