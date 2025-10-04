@@ -92,6 +92,9 @@
     .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .actions{display:flex;align-items:center;gap:10px}
     .icon-btn{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:0;font-size:16px}
+    .lang-btn{min-width:60px;position:relative;cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 14px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+    .lang-btn:hover{filter:brightness(1.1)}
+    .lang-btn .lang-text{pointer-events:none}
     .switch{position:relative;cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;width:54px;height:28px;padding:0}
     .switch span{pointer-events:none}
     .switch .thumb{position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:999px;background:var(--accent);box-shadow:0 2px 6px rgba(0,0,0,.35);transition:transform .25s ease}
@@ -112,6 +115,7 @@
     body.light .ig-link{color:#334155;border-color:#cbd5e1}
     body.light .ig-link:hover{border-color:#3b82f6}
     body.light .switch{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+    body.light .lang-btn{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
 
     
     .hist-pop{position:absolute; right:12px; top:100%; margin-top:8px; background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:260px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:70}
@@ -243,8 +247,11 @@
 <body>
   <div class="wrap">
     <div class="topbar">
-      <h1>ابزار تبدیل مقیاس</h1>
+      <h1 id="pageHeading" data-i18n-key="heading">ابزار تبدیل مقیاس</h1>
       <div class="actions">
+        <button id="langToggle" class="lang-btn" type="button" aria-label="تغییر زبان به انگلیسی" data-lang="fa">
+          <span class="lang-text" id="langToggleText">فا</span>
+        </button>
         <button id="themeToggle" class="switch" aria-label="تغییر حالت روشن/تاریک" data-mode="dark">
           <span class="icon sun" aria-hidden="true">☀️</span>
           <span class="icon moon" aria-hidden="true">🌙</span>
@@ -252,12 +259,12 @@
         </button>
       </div>
     </div>
-    <p class="desc">واحد دنیای واقعی را انتخاب کنید (همیشه <strong>۱:۱</strong>)، سپس مقیاس هدف <strong>۱:N</strong> و واحد نقشه را برگزینید. مقدار واقعی را وارد کنید تا اندازه روی نقشه محاسبه شود.</p>
+    <p class="desc" id="description" data-i18n-key="description" data-i18n-attr="innerHTML">واحد دنیای واقعی را انتخاب کنید (همیشه <strong>۱:۱</strong>)، سپس مقیاس هدف <strong>۱:N</strong> و واحد نقشه را برگزینید. مقدار واقعی را وارد کنید تا اندازه روی نقشه محاسبه شود.</p>
 
-    <div class="card grid" role="form" aria-label="فرم مبدّل مقیاس">
+    <div class="card grid" role="form" aria-label="فرم مبدّل مقیاس" id="converterForm">
       <div class="row-3">
         <div>
-          <label for="realUnit">واحد واقعی (۱:۱)</label>
+          <label for="realUnit" id="realUnitLabel" data-i18n-key="realUnitLabel">واحد واقعی (۱:۱)</label>
           <select id="realUnit" aria-label="واحد واقعی">
             <option value="mm">میلی‌متر (mm)</option>
             <option value="cm">سانتی‌متر (cm)</option>
@@ -271,17 +278,17 @@
           </select>
         </div>
         <div>
-          <label for="scaleSelect">مقیاس هدف — ۱:N</label>
+          <label for="scaleSelect" id="scaleSelectLabel" data-i18n-key="scaleSelectLabel">مقیاس هدف — ۱:N</label>
           <div class="grid" style="gap:8px">
             <div id="scaleSwap" class="swap">
               <select id="scaleSelect" aria-label="انتخاب مقیاس">
-                <optgroup label="جزئیات (Detail)">
+                <optgroup label="جزئیات (Detail)" data-i18n-group="scaleGroupDetail">
                   <option value="1">۱:۱</option>
                   <option value="2">۱:۲</option>
                   <option value="5">۱:۵</option>
                   <option value="10">۱:۱۰</option>
                 </optgroup>
-                <optgroup label="نقشه‌های معماری (Plans)">
+                <optgroup label="نقشه‌های معماری (Plans)" data-i18n-group="scaleGroupPlans">
                   <option value="20">۱:۲۰</option>
                   <option value="25">۱:۲۵</option>
                   <option value="50">۱:۵۰</option>
@@ -292,7 +299,7 @@
                   <option value="200" selected>۱:۲۰۰</option>
                   <option value="250">۱:۲۵۰</option>
                 </optgroup>
-                <optgroup label="سایت/شهر (Site/Urban)">
+                <optgroup label="سایت/شهر (Site/Urban)" data-i18n-group="scaleGroupSite">
                   <option value="400">۱:۴۰۰</option>
                   <option value="500">۱:۵۰۰</option>
                   <option value="1000">۱:۱۰۰۰</option>
@@ -304,12 +311,12 @@
             </div>
             <label class="hstack toggle-inline">
               <input type="checkbox" id="manualToggle" />
-              <span class="hint">مقیاس دلخواه</span>
+              <span class="hint" id="manualHint" data-i18n-key="manualHint">مقیاس دلخواه</span>
             </label>
           </div>
         </div>
         <div>
-          <label for="targetUnit">واحد نقشه</label>
+          <label for="targetUnit" id="targetUnitLabel" data-i18n-key="targetUnitLabel">واحد نقشه</label>
           <select id="targetUnit" aria-label="واحد نقشه">
             <option value="mm">میلی‌متر (mm)</option>
             <option value="cm" selected>سانتی‌متر (cm)</option>
@@ -330,7 +337,7 @@
           <input id="realValue" type="text" inputmode="decimal" placeholder="مثلاً ۱۲٫۵ یا 12.5" aria-label="اندازه واقعی" class="ltr" dir="ltr" />
           <div class="hint" id="realHint">واحد: m</div>
           <div class="flex" style="margin-top:8px">
-            <button type="button" class="copy" id="calcBtn" title="محاسبه">محاسبه</button>
+            <button type="button" class="copy" id="calcBtn" title="محاسبه" data-i18n-key="calcButton">محاسبه</button>
           </div>
         </div>
         <div>
@@ -339,14 +346,14 @@
             <div class="big mono" id="outVal">—</div>
             <div class="hint" id="outUnit">واحد: cm</div>
             <div class="flex" style="margin-top:8px">
-              <button type="button" class="copy" id="copyBtn" title="کپی مقدار">کپی</button>
+              <button type="button" class="copy" id="copyBtn" title="کپی مقدار" data-i18n-key="copyButton">کپی</button>
               <button type="button" class="copy" id="histBtn" title="تاریخچه ۱۰ مقدار اخیر">🕘</button>
               <button id="swapBtn" class="copy icon-btn" title="تبدیل جهت (نقشه ↔ واقعی)" aria-pressed="false">⇄</button>
               <span class="hint" id="copyNote"></span>
             </div>
             <div id="histPop" class="hist-pop hidden" role="dialog" aria-label="تاریخچه ۱۰ مقدار اخیر">
               <div class="hist-top">
-                <div class="hist-head">تاریخچه (۱۰ مقدار اخیر)</div>
+                <div class="hist-head" id="histHead">تاریخچه (۱۰ مقدار اخیر)</div>
                 <button type="button" id="histClose" class="hist-close" aria-label="بستن">×</button>
               </div>
               <ul id="histList" class="hist-list"></ul>
@@ -356,9 +363,9 @@
       </div>
 
       <div class="grid">
-        <div class="hint">جزئیات مبدل: <span class="mono" id="detail">۱ (واحد واقعی) → ؟ (واحد نقشه) در مقیاس ۱:N</span></div>
+        <div class="hint"><span id="detailHeading" data-i18n-key="detailHeading">جزئیات مبدل:</span> <span class="mono" id="detail">۱ (واحد واقعی) → ؟ (واحد نقشه) در مقیاس ۱:N</span></div>
         <div class="footer footer-bar">
-          <div class="footer-left">ساخته شده توسط <strong>Pixel Studio</strong>
+          <div class="footer-left"><span id="footerCredit" data-i18n-key="footerCredit" data-i18n-attr="innerHTML">ساخته شده توسط <strong>Pixel Studio</strong></span>
             <a class="ig-link version" href="https://instagram.com/Pixel_architecture_studio" target="_blank" rel="noopener" aria-label="Instagram: @Pixel_architecture_studio">
               <svg class="ig" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="1.5"></rect>
@@ -372,7 +379,7 @@
             <span class="dl-anchor">
               <button id="dlBtn" class="version" type="button" aria-haspopup="menu" aria-expanded="false" title="دانلود نرم‌افزار">
                 <svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3a1 1 0 011 1v9.59l3.3-3.3a1 1 0 111.4 1.42l-5 5a1 1 0 01-1.4 0l-5-5a1 1 0 111.4-1.42L11 13.59V4a1 1 0 011-1zm-7 15a1 1 0 011-1h12a1 1 0 110 2H6a1 1 0 01-1-1z"/></svg>
-                <span>دانلود</span>
+                <span id="downloadLabel" data-i18n-key="downloadLabel">دانلود</span>
               </button>
               <div id="dlPop" class="dl-pop hidden" role="menu" aria-label="دانلود">
                 <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.3/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem">
@@ -382,7 +389,7 @@
                     <rect x="3" y="13" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
                     <rect x="13" y="13" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
                   </svg>
-                  <span>دانلود نسخه ویندوز</span>
+                  <span id="downloadWindows" data-i18n-key="downloadWindows">دانلود نسخه ویندوز</span>
                 </a>
                 <a href="https://www.zoomit.ir/mobile-learning/20984-how-to-add-website-links/" target="_blank" rel="noopener" id="dlWeb" class="dl-item" role="menuitem">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
@@ -390,20 +397,20 @@
                     <path d="M10 4.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                     <path d="M9 19.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                   </svg>
-                  <span>نسخه وب اپ</span>
+                  <span id="downloadWeb" data-i18n-key="downloadWeb">نسخه وب اپ</span>
                 </a>
               </div>
             </span>
             <button id="versionBtn" class="version mono ltr" type="button" aria-haspopup="dialog" aria-expanded="false" title="اطلاعات نسخه">v1.3</button>
           </span>
           <div id="verPop" class="ver-pop hidden" role="dialog" aria-label="اطلاعات نسخه">
-            <div class="ver-title">نرم‌افزار تبدیل مقیاس</div>
-            <div>نسخه <span class="mono ltr" id="versionText">1.3</span></div>
+            <div class="ver-title" id="versionTitle" data-i18n-key="versionTitle">نرم‌افزار تبدیل مقیاس</div>
+            <div><span id="versionLabel" data-i18n-key="versionLabel">نسخه</span> <span class="mono ltr" id="versionText">1.3</span></div>
             <div class="ver-section">
-              <div class="label">آخرین تغییرات</div>
-              <div class="ver-changes">اصلاح رابط کاربری برای نمایش بهتر در حالت پرتره موبایل</div>
+              <div class="label" id="versionChangesLabel" data-i18n-key="versionChangesLabel">آخرین تغییرات</div>
+              <div class="ver-changes" id="versionChanges" data-i18n-key="versionChanges">اصلاح رابط کاربری برای نمایش بهتر در حالت پرتره موبایل</div>
             </div>
-            <div class="ver-hint">برای باخبر شدن از آخرین آپدیت‌ نرم افزار و پروژه‌های جدید نرم‌افزاری، پیج Pixel Studio رو فالو کنید.</div>
+            <div class="ver-hint" id="versionHint" data-i18n-key="versionHint">برای باخبر شدن از آخرین آپدیت‌ نرم افزار و پروژه‌های جدید نرم‌افزاری، پیج Pixel Studio رو فالو کنید.</div>
             <a class="ig-link version" href="https://instagram.com/Pixel_architecture_studio" target="_blank" rel="noopener" aria-label="Instagram: @Pixel_architecture_studio">
               <svg class="ig" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="currentColor" stroke-width="1.5"></rect>
@@ -417,7 +424,7 @@
       </div>
     </div>
 
-    <div class="footer" style="margin-top:10px">نکته: برای مقیاس‌دادن به هندسه در CAD از <span class="mono ltr">scale factor = 1 / N</span> استفاده کنید (مثلاً برای <span class="mono ltr">1:200</span>، ضریب <span class="mono ltr">0.005</span> است). این ابزار تبدیل واحدها را با همین مقیاس انجام می‌دهد.</div>
+    <div class="footer" id="footnote" style="margin-top:10px" data-i18n-key="footnote" data-i18n-attr="innerHTML">نکته: برای مقیاس‌دادن به هندسه در CAD از <span class="mono ltr">scale factor = 1 / N</span> استفاده کنید (مثلاً برای <span class="mono ltr">1:200</span>، ضریب <span class="mono ltr">0.005</span> است). این ابزار تبدیل واحدها را با همین مقیاس انجام می‌دهد.</div>
   </div>
 
   <script>
@@ -452,6 +459,197 @@
     const versionText = el('versionText');
     const dlBtn = el('dlBtn');
     const dlPop = el('dlPop');
+    const langToggle = el('langToggle');
+    const langToggleText = el('langToggleText');
+    const pageHeading = el('pageHeading');
+    const descriptionEl = el('description');
+    const realUnitLabel = el('realUnitLabel');
+    const scaleSelectLabel = el('scaleSelectLabel');
+    const targetUnitLabel = el('targetUnitLabel');
+    const manualHint = el('manualHint');
+    const histHead = el('histHead');
+    const detailHeading = el('detailHeading');
+    const footerCredit = el('footerCredit');
+    const downloadLabel = el('downloadLabel');
+    const downloadWindows = el('downloadWindows');
+    const downloadWeb = el('downloadWeb');
+    const versionTitle = el('versionTitle');
+    const versionLabel = el('versionLabel');
+    const versionChangesLabel = el('versionChangesLabel');
+    const versionChanges = el('versionChanges');
+    const versionHint = el('versionHint');
+    const footnote = el('footnote');
+    const converterForm = el('converterForm');
+    const locales = {
+      fa: {
+        code: 'fa',
+        langButton: 'فا',
+        langToggleLabel: 'تغییر زبان به انگلیسی',
+        htmlLang: 'fa',
+        dir: 'rtl',
+        themeToggleLabel: 'تغییر حالت روشن/تاریک',
+        pageTitle: 'ابزار تبدیل مقیاس',
+        heading: 'ابزار تبدیل مقیاس',
+        description: 'واحد دنیای واقعی را انتخاب کنید (همیشه <strong>۱:۱</strong>)، سپس مقیاس هدف <strong>۱:N</strong> و واحد نقشه را برگزینید. مقدار واقعی را وارد کنید تا اندازه روی نقشه محاسبه شود.',
+        realUnitLabel: 'واحد واقعی (۱:۱)',
+        scaleSelectLabel: 'مقیاس هدف — ۱:N',
+        targetUnitLabel: 'واحد نقشه',
+        manualHint: 'مقیاس دلخواه',
+        calcButton: 'محاسبه',
+        calcButtonTitle: 'محاسبه',
+        copyButton: 'کپی',
+        copyButtonTitle: 'کپی مقدار',
+        histButtonTitle: 'تاریخچه ۱۰ مقدار اخیر',
+        swapButtonTitle: 'تبدیل جهت (نقشه ↔ واقعی)',
+        detailHeading: 'جزئیات مبدل:',
+        footerCredit: 'ساخته شده توسط <strong>Pixel Studio</strong>',
+        downloadLabel: 'دانلود',
+        downloadTitle: 'دانلود نرم‌افزار',
+        downloadAria: 'دانلود',
+        downloadWindows: 'دانلود نسخه ویندوز',
+        downloadWeb: 'نسخه وب اپ',
+        versionTitle: 'نرم‌افزار تبدیل مقیاس',
+        versionLabel: 'نسخه',
+        versionChangesLabel: 'آخرین تغییرات',
+        versionChanges: 'اصلاح رابط کاربری برای نمایش بهتر در حالت پرتره موبایل',
+        versionHint: 'برای باخبر شدن از آخرین آپدیت‌ نرم افزار و پروژه‌های جدید نرم‌افزاری، پیج Pixel Studio رو فالو کنید.',
+        footnote: 'نکته: برای مقیاس‌دادن به هندسه در CAD از <span class="mono ltr">scale factor = 1 / N</span> استفاده کنید (مثلاً برای <span class="mono ltr">1:200</span>، ضریب <span class="mono ltr">0.005</span> است). این ابزار تبدیل واحدها را با همین مقیاس انجام می‌دهد.',
+        histDialogLabel: 'تاریخچه ۱۰ مقدار اخیر',
+        histTitle: 'تاریخچه (۱۰ مقدار اخیر)',
+        histCloseLabel: 'بستن',
+        histEmpty: 'خالی',
+        copyPrompt: 'ابتدا مقدار را محاسبه کنید',
+        copySuccess: 'کپی شد!',
+        copyFail: 'کپی ناموفق',
+        unitsLabel: (unit) => `واحد: ${unit}`,
+        detailIdle: (from, to, n) => `۱ ${from} → ؟ ${to} در مقیاس ۱:${n}`,
+        detailForward: (rU, tU, ratio, nLabel) => `۱ ${rU} = ${ratio} ${tU}  (مقیاس ۱:${nLabel})`,
+        detailReverse: (tU, rU, ratio, nLabel) => `۱ ${tU} = ${ratio} ${rU}  (مقیاس ۱:${nLabel})`,
+        historyInfo: (rvStr, scaleStr) => `اندازه واقعی: ${rvStr} | مقیاس ${scaleStr}`,
+        scaleLabel: (nLabel) => `۱:${nLabel}`,
+        scaleUnknown: '۱:N',
+        inputLabelNormal: 'اندازه واقعی (فقط عدد)',
+        outputLabelNormal: 'اندازهٔ روی نقشه (محاسبه‌شده)',
+        inputLabelReverse: 'اندازه روی نقشه (ورودی)',
+        outputLabelReverse: 'اندازه واقعی (محاسبه‌شده)',
+        versionBtnTitle: 'اطلاعات نسخه',
+        realValuePlaceholder: 'مثلاً ۱۲٫۵ یا 12.5',
+        realValueAria: 'اندازه واقعی',
+        realUnitAria: 'واحد واقعی',
+        targetUnitAria: 'واحد نقشه',
+        scaleSelectAria: 'انتخاب مقیاس',
+        scaleNAria: 'عدد N مقیاس',
+        formAriaLabel: 'فرم مبدّل مقیاس'
+      },
+      en: {
+        code: 'en',
+        langButton: 'EN',
+        langToggleLabel: 'Switch language to Persian',
+        htmlLang: 'en',
+        dir: 'rtl',
+        themeToggleLabel: 'Toggle light/dark mode',
+        pageTitle: 'Scale Converter',
+        heading: 'Scale Converter',
+        description: 'Select the real-world unit (always <strong>1:1</strong>), then choose the target scale <strong>1:N</strong> and map unit. Enter the real measurement to compute the map size.',
+        realUnitLabel: 'Real-world unit (1:1)',
+        scaleSelectLabel: 'Target scale — 1:N',
+        targetUnitLabel: 'Map unit',
+        manualHint: 'Custom scale',
+        calcButton: 'Calculate',
+        calcButtonTitle: 'Calculate',
+        copyButton: 'Copy',
+        copyButtonTitle: 'Copy value',
+        histButtonTitle: 'History (last 10 values)',
+        swapButtonTitle: 'Swap direction (map ↔ real)',
+        detailHeading: 'Converter details:',
+        footerCredit: 'Built by <strong>Pixel Studio</strong>',
+        downloadLabel: 'Download',
+        downloadTitle: 'Download software',
+        downloadAria: 'Download',
+        downloadWindows: 'Download Windows version',
+        downloadWeb: 'Web app version',
+        versionTitle: 'Scale Converter App',
+        versionLabel: 'Version',
+        versionChangesLabel: 'Latest changes',
+        versionChanges: 'UI refinements for a better portrait mobile layout',
+        versionHint: 'Follow Pixel Studio for app updates and new software projects.',
+        footnote: 'Tip: When scaling geometry in CAD use <span class="mono ltr">scale factor = 1 / N</span> (for <span class="mono ltr">1:200</span> the factor is <span class="mono ltr">0.005</span>). This tool converts units using the same ratio.',
+        histDialogLabel: 'History (last 10 values)',
+        histTitle: 'History (last 10 values)',
+        histCloseLabel: 'Close',
+        histEmpty: 'Empty',
+        copyPrompt: 'Calculate a value first',
+        copySuccess: 'Copied!',
+        copyFail: 'Copy failed',
+        unitsLabel: (unit) => `Unit: ${unit}`,
+        detailIdle: (from, to, n) => `1 ${from} → ? ${to} at 1:${n}`,
+        detailForward: (rU, tU, ratio, nLabel) => `1 ${rU} = ${ratio} ${tU}  (scale 1:${nLabel})`,
+        detailReverse: (tU, rU, ratio, nLabel) => `1 ${tU} = ${ratio} ${rU}  (scale 1:${nLabel})`,
+        historyInfo: (rvStr, scaleStr) => `Real size: ${rvStr} | Scale ${scaleStr}`,
+        scaleLabel: (nLabel) => `1:${nLabel}`,
+        scaleUnknown: '1:N',
+        inputLabelNormal: 'Real size (numbers only)',
+        outputLabelNormal: 'Map size (calculated)',
+        inputLabelReverse: 'Map size (input)',
+        outputLabelReverse: 'Real size (calculated)',
+        versionBtnTitle: 'Version details',
+        realValuePlaceholder: 'e.g., 12.5',
+        realValueAria: 'Real-world size',
+        realUnitAria: 'Real-world unit',
+        targetUnitAria: 'Map unit',
+        scaleSelectAria: 'Choose scale',
+        scaleNAria: 'Scale N value',
+        formAriaLabel: 'Scale converter form'
+      }
+    };
+
+    const unitOptionTexts = {
+      mm: { fa: 'میلی‌متر (mm)', en: 'Millimetre (mm)' },
+      cm: { fa: 'سانتی‌متر (cm)', en: 'Centimetre (cm)' },
+      m: { fa: 'متر (m)', en: 'Metre (m)' },
+      km: { fa: 'کیلومتر (km)', en: 'Kilometre (km)' },
+      in: { fa: 'اینچ (in)', en: 'Inch (in)' },
+      ft: { fa: 'فوت (ft)', en: 'Foot (ft)' },
+      yd: { fa: 'یارد (yd)', en: 'Yard (yd)' },
+      mi: { fa: 'مایل (mi)', en: 'Mile (mi)' },
+      nmi: { fa: 'مایل دریایی (nmi)', en: 'Nautical mile (nmi)' }
+    };
+
+    const scaleOptionTexts = {
+      1: { fa: '۱:۱', en: '1:1' },
+      2: { fa: '۱:۲', en: '1:2' },
+      5: { fa: '۱:۵', en: '1:5' },
+      10: { fa: '۱:۱۰', en: '1:10' },
+      20: { fa: '۱:۲۰', en: '1:20' },
+      25: { fa: '۱:۲۵', en: '1:25' },
+      50: { fa: '۱:۵۰', en: '1:50' },
+      75: { fa: '۱:۷۵', en: '1:75' },
+      100: { fa: '۱:۱۰۰', en: '1:100' },
+      125: { fa: '۱:۱۲۵', en: '1:125' },
+      150: { fa: '۱:۱۵۰', en: '1:150' },
+      200: { fa: '۱:۲۰۰', en: '1:200' },
+      250: { fa: '۱:۲۵۰', en: '1:250' },
+      400: { fa: '۱:۴۰۰', en: '1:400' },
+      500: { fa: '۱:۵۰۰', en: '1:500' },
+      1000: { fa: '۱:۱۰۰۰', en: '1:1000' },
+      2000: { fa: '۱:۲۰۰۰', en: '1:2000' },
+      5000: { fa: '۱:۵۰۰۰', en: '1:5000' }
+    };
+
+    const scaleGroupLabels = {
+      scaleGroupDetail: { fa: 'جزئیات (Detail)', en: 'Detail' },
+      scaleGroupPlans: { fa: 'نقشه‌های معماری (Plans)', en: 'Architectural plans' },
+      scaleGroupSite: { fa: 'سایت/شهر (Site/Urban)', en: 'Site / urban' }
+    };
+
+    let currentLang = 'fa';
+    try {
+      const storedLang = localStorage.getItem('lang');
+      if (storedLang && locales[storedLang]) currentLang = storedLang;
+    } catch(e) {
+      currentLang = 'fa';
+    }
+
     // sync all version labels from one source
     if (versionBtn) versionBtn.textContent = 'v' + APP_VERSION;
     if (versionText) versionText.textContent = APP_VERSION;
@@ -460,14 +658,133 @@
 
     function fmt(n){ if (Number.isNaN(n)) return '—'; return n.toFixed(6).replace(/\.0+$/,'').replace(/(\.[0-9]*?)0+$/, '$1'); }
 
-    function updateHints(){
-      if (reverseMode){
-        realHint.textContent = `واحد: ${targetUnit.value}`; // input in drawing units
-        outUnit.textContent = `واحد: ${realUnit.value}`;    // output in real units
-      } else {
-        realHint.textContent = `واحد: ${realUnit.value}`;
-        outUnit.textContent = `واحد: ${targetUnit.value}`;
+    function getLocale(){ return locales[currentLang] || locales.fa; }
+
+    function applyUnitOptions(lang){
+      const targetLang = locales[lang] ? lang : 'fa';
+      Object.keys(unitOptionTexts).forEach((key) => {
+        const optionText = unitOptionTexts[key][targetLang] || unitOptionTexts[key].fa;
+        const optReal = realUnit ? realUnit.querySelector(`option[value="${key}"]`) : null;
+        const optTarget = targetUnit ? targetUnit.querySelector(`option[value="${key}"]`) : null;
+        if (optReal) optReal.textContent = optionText;
+        if (optTarget) optTarget.textContent = optionText;
+      });
+    }
+
+    function applyScaleOptions(lang){
+      const targetLang = locales[lang] ? lang : 'fa';
+      if (scaleSelect){
+        scaleSelect.querySelectorAll('option').forEach((opt) => {
+          const value = opt.value;
+          if (scaleOptionTexts[value]) opt.textContent = scaleOptionTexts[value][targetLang] || scaleOptionTexts[value].fa;
+        });
+        scaleSelect.querySelectorAll('optgroup').forEach((group) => {
+          const key = group.dataset.i18nGroup;
+          if (key && scaleGroupLabels[key]) group.label = scaleGroupLabels[key][targetLang] || scaleGroupLabels[key].fa;
+        });
       }
+    }
+
+    function refreshDetailText(){
+      if (!detail) return;
+      const locale = getLocale();
+      const manual = manualToggle && manualToggle.checked;
+      const N = manual ? parseFloat(scaleN.value) : parseFloat(scaleSelect.value);
+      const rU = realUnit.value;
+      const tU = targetUnit.value;
+      const nLabel = (N && N > 0) ? fmt(N) : (manual ? 'N' : (scaleSelect.value || 'N'));
+      if (!outVal.textContent || outVal.textContent === '—'){
+        detail.textContent = reverseMode ? locale.detailIdle(tU, rU, nLabel) : locale.detailIdle(rU, tU, nLabel);
+        return;
+      }
+      if (!N || N <= 0){
+        detail.textContent = reverseMode ? locale.detailIdle(tU, rU, nLabel) : locale.detailIdle(rU, tU, nLabel);
+        return;
+      }
+      if (reverseMode){
+        const ratio = fmt((unitToMM[tU] * N) / unitToMM[rU]);
+        detail.textContent = locale.detailReverse(tU, rU, ratio, fmt(N));
+      } else {
+        const ratio = fmt((unitToMM[rU] / N) / unitToMM[tU]);
+        detail.textContent = locale.detailForward(rU, tU, ratio, fmt(N));
+      }
+    }
+
+    function updateHints(){
+      const locale = getLocale();
+      if (reverseMode){
+        realHint.textContent = locale.unitsLabel(targetUnit.value);
+        outUnit.textContent = locale.unitsLabel(realUnit.value);
+      } else {
+        realHint.textContent = locale.unitsLabel(realUnit.value);
+        outUnit.textContent = locale.unitsLabel(targetUnit.value);
+      }
+    }
+
+    function applyLanguage(lang){
+      const locale = locales[lang] ? locales[lang] : locales.fa;
+      currentLang = locale.code;
+      document.documentElement.lang = locale.htmlLang || 'fa';
+      document.documentElement.dir = locale.dir || 'rtl';
+      if (document.title !== locale.pageTitle) document.title = locale.pageTitle;
+      if (pageHeading) pageHeading.textContent = locale.heading;
+      if (descriptionEl) descriptionEl.innerHTML = locale.description;
+      if (realUnitLabel) realUnitLabel.textContent = locale.realUnitLabel;
+      if (scaleSelectLabel) scaleSelectLabel.textContent = locale.scaleSelectLabel;
+      if (targetUnitLabel) targetUnitLabel.textContent = locale.targetUnitLabel;
+      if (manualHint) manualHint.textContent = locale.manualHint;
+      if (calcBtn){
+        calcBtn.textContent = locale.calcButton;
+        calcBtn.title = locale.calcButtonTitle;
+        calcBtn.setAttribute('title', locale.calcButtonTitle);
+      }
+      if (copyBtn){
+        copyBtn.textContent = locale.copyButton;
+        copyBtn.title = locale.copyButtonTitle;
+        copyBtn.setAttribute('title', locale.copyButtonTitle);
+      }
+      if (histBtn) histBtn.setAttribute('title', locale.histButtonTitle);
+      if (swapBtn) swapBtn.setAttribute('title', locale.swapButtonTitle);
+      if (detailHeading) detailHeading.textContent = locale.detailHeading;
+      if (footerCredit) footerCredit.innerHTML = locale.footerCredit;
+      if (downloadLabel) downloadLabel.textContent = locale.downloadLabel;
+      if (downloadWindows) downloadWindows.textContent = locale.downloadWindows;
+      if (downloadWeb) downloadWeb.textContent = locale.downloadWeb;
+      if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
+      if (dlPop) dlPop.setAttribute('aria-label', locale.downloadAria);
+      if (converterForm) converterForm.setAttribute('aria-label', locale.formAriaLabel);
+      if (versionTitle) versionTitle.textContent = locale.versionTitle;
+      if (versionLabel) versionLabel.textContent = locale.versionLabel;
+      if (versionChangesLabel) versionChangesLabel.textContent = locale.versionChangesLabel;
+      if (versionChanges) versionChanges.textContent = locale.versionChanges;
+      if (versionHint) versionHint.textContent = locale.versionHint;
+      if (versionBtn) versionBtn.setAttribute('title', locale.versionBtnTitle);
+      if (verPop) verPop.setAttribute('aria-label', locale.versionBtnTitle);
+      if (footnote) footnote.innerHTML = locale.footnote;
+      if (histPop) histPop.setAttribute('aria-label', locale.histDialogLabel);
+      if (histHead) histHead.textContent = locale.histTitle;
+      if (histClose) histClose.setAttribute('aria-label', locale.histCloseLabel);
+      if (langToggle){
+        langToggle.setAttribute('aria-label', locale.langToggleLabel);
+        langToggle.dataset.lang = locale.code;
+      }
+      if (langToggleText) langToggleText.textContent = locale.langButton;
+      if (themeToggle) themeToggle.setAttribute('aria-label', locale.themeToggleLabel);
+      if (realValue){
+        realValue.placeholder = locale.realValuePlaceholder;
+        realValue.setAttribute('aria-label', locale.realValueAria);
+      }
+      if (realUnit) realUnit.setAttribute('aria-label', locale.realUnitAria);
+      if (targetUnit) targetUnit.setAttribute('aria-label', locale.targetUnitAria);
+      if (scaleSelect) scaleSelect.setAttribute('aria-label', locale.scaleSelectAria);
+      if (scaleN) scaleN.setAttribute('aria-label', locale.scaleNAria);
+      applyUnitOptions(currentLang);
+      applyScaleOptions(currentLang);
+      if (copyNote) copyNote.textContent = '';
+      applyModeUI();
+      updateHints();
+      refreshDetailText();
+      renderHistory();
     }
 
     function applyTheme(theme){
@@ -504,20 +821,21 @@
       const manual = manualToggle && manualToggle.checked;
       const N = manual ? parseFloat(scaleN.value) : parseFloat(scaleSelect.value);
       const rU = realUnit.value; const tU = targetUnit.value;
+      const locale = getLocale();
       updateHints();
-      if (!rv || rv < 0 || !N || N <= 0){ const nLabel = (N && N > 0) ? fmt(N) : (manual ? 'N' : (scaleSelect.value || 'N')); outVal.textContent = '—'; detail.textContent = reverseMode ? `۱ ${tU} → ؟ ${rU} در مقیاس ۱:${nLabel}` : `۱ ${rU} → ؟ ${tU} در مقیاس ۱:${nLabel}`; return; }
+      if (!rv || rv < 0 || !N || N <= 0){ const nLabel = (N && N > 0) ? fmt(N) : (manual ? 'N' : (scaleSelect.value || 'N')); outVal.textContent = '—'; detail.textContent = reverseMode ? locale.detailIdle(tU, rU, nLabel) : locale.detailIdle(rU, tU, nLabel); return; }
       if (reverseMode){
         // input is drawing value; compute real value
         const realVal = (rv * unitToMM[tU] * N) / unitToMM[rU];
         outVal.textContent = `${fmt(realVal)} ${rU}`; addToHistory(outVal.textContent,{rv, rU, tU, N, reverse:true});
         const oneTargetToReal = (unitToMM[tU] * N) / unitToMM[rU];
-        detail.textContent = `۱ ${tU} = ${fmt(oneTargetToReal)} ${rU}  (مقیاس ۱:${fmt(N)})`;
+        detail.textContent = locale.detailReverse(tU, rU, fmt(oneTargetToReal), fmt(N));
       } else {
         // normal: input is real value; compute drawing value
         const drawingVal = calcDrawing(rv, rU, N, tU);
         outVal.textContent = `${fmt(drawingVal)} ${tU}`; addToHistory(outVal.textContent,{rv, rU, tU, N, reverse:false});
         const oneRealToTarget = (unitToMM[rU] / N) / unitToMM[tU];
-        detail.textContent = `۱ ${rU} = ${fmt(oneRealToTarget)} ${tU}  (مقیاس ۱:${fmt(N)})`;
+        detail.textContent = locale.detailForward(rU, tU, fmt(oneRealToTarget), fmt(N));
       }
     }
 
@@ -526,8 +844,9 @@
       const N = manual ? parseFloat(scaleN.value) : parseFloat(scaleSelect.value);
       const rU = realUnit.value; const tU = targetUnit.value;
       outVal.textContent = '—';
+      const locale = getLocale();
       const nLabel = (N && N > 0) ? fmt(N) : (manual ? 'N' : (scaleSelect.value || 'N'));
-      detail.textContent = reverseMode ? `۱ ${tU} → ؟ ${rU} در مقیاس ۱:${nLabel}` : `۱ ${rU} → ؟ ${tU} در مقیاس ۱:${nLabel}`;
+      detail.textContent = reverseMode ? locale.detailIdle(tU, rU, nLabel) : locale.detailIdle(rU, tU, nLabel);
     }
 
     realUnit.addEventListener('change', ()=>{ updateHints(); clearOutput(); });
@@ -545,14 +864,16 @@
     });
     if (calcBtn) calcBtn.addEventListener('click', compute);
     if (themeToggle) themeToggle.addEventListener('click', function(){ const isLight = !document.body.classList.contains('light'); applyTheme(isLight ? 'light' : 'dark'); localStorage.setItem('theme', isLight ? 'light' : 'dark'); });
+    if (langToggle) langToggle.addEventListener('click', function(){ const next = currentLang === 'fa' ? 'en' : 'fa'; applyLanguage(next); try { localStorage.setItem('lang', next); } catch(e){} });
 
     copyBtn.addEventListener('click', async () => {
       const raw = outVal.textContent || ''; let val = raw.trim();
-      if (!val || val === '—') { copyNote.textContent = 'ابتدا مقدار را محاسبه کنید'; setTimeout(()=>{ copyNote.textContent=''; }, 1500); return; }
+      const locale = getLocale();
+      if (!val || val === '—') { copyNote.textContent = locale.copyPrompt; setTimeout(()=>{ copyNote.textContent=''; }, 1500); return; }
       const units = ['mm','cm','m','km','in','ft','yd','mi','nmi']; for (let i=0;i<units.length;i++){ const u=units[i]; if (val.endsWith(' '+u)) { val = val.slice(0, -(u.length+1)); break; } }
       let ok = false; if (navigator.clipboard && window.isSecureContext) { try { await navigator.clipboard.writeText(val); ok = true; } catch(e) { ok = false; } }
       if (!ok) { try { const ta=document.createElement('textarea'); ta.value=val; ta.style.position='fixed'; ta.style.left='-1000px'; ta.style.top='-1000px'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try { ta.setSelectionRange(0, ta.value.length); } catch(e){} ok = document.execCommand('copy'); document.body.removeChild(ta); } catch(e) { ok=false; } }
-      copyNote.textContent = ok ? 'کپی شد!' : 'کپی ناموفق'; setTimeout(()=>{ copyNote.textContent=''; }, 1500);
+      copyNote.textContent = ok ? locale.copySuccess : locale.copyFail; setTimeout(()=>{ copyNote.textContent=''; }, 1500);
     });
 
     // ---- History helpers ----
@@ -561,13 +882,14 @@
     function renderHistory(){
       if (!histList) return;
       const arr = readHistory();
-      if (!arr.length){ histList.innerHTML = '<li class="hist-empty">خالی</li>'; return; }
+      const locale = getLocale();
+      if (!arr.length){ histList.innerHTML = `<li class="hist-empty">${locale.histEmpty}</li>`; return; }
       histList.innerHTML = arr.map(i => {
         const m = i.meta || {};
         const rvStr = m && m.reverse ? i.out : `${fmt(m.rv)} ${m.rU || ''}`;
-        const scaleStr = (m && typeof m.N !== 'undefined' && !Number.isNaN(m.N)) ? `۱:${fmt(m.N)}` : '۱:N';
+        const scaleStr = (m && typeof m.N !== 'undefined' && !Number.isNaN(m.N)) ? locale.scaleLabel(fmt(m.N)) : locale.scaleUnknown;
         const outStr = i.out; // already includes unit
-        const info = `اندازه واقعی: ${rvStr} | مقیاس ${scaleStr}`;
+        const info = locale.historyInfo(rvStr, scaleStr);
         return `<li class="hist-li"><div class="mono">${outStr}</div><div class="hint">${info}</div></li>`;
       }).join('');
     }
@@ -599,7 +921,17 @@
 
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ toggleHistory(false); toggleVersion(false); toggleDownload(false); } });
 
-    function applyModeUI(){ if (inputLabel && outputLabel){ if (reverseMode){ inputLabel.textContent = 'اندازه روی نقشه (ورودی)'; outputLabel.textContent = 'اندازه واقعی (محاسبه‌شده)'; } else { inputLabel.textContent = 'اندازه واقعی (فقط عدد)'; outputLabel.textContent = 'اندازهٔ روی نقشه (محاسبه‌شده)'; } } }
+    function applyModeUI(){
+      if (!inputLabel || !outputLabel) return;
+      const locale = getLocale();
+      if (reverseMode){
+        inputLabel.textContent = locale.inputLabelReverse;
+        outputLabel.textContent = locale.outputLabelReverse;
+      } else {
+        inputLabel.textContent = locale.inputLabelNormal;
+        outputLabel.textContent = locale.outputLabelNormal;
+      }
+    }
 
     if (swapBtn){ swapBtn.addEventListener('click', function(){ reverseMode = !reverseMode; try { localStorage.setItem('reverseMode', reverseMode ? '1' : '0'); } catch(e){} this.setAttribute('aria-pressed', reverseMode ? 'true' : 'false'); applyModeUI(); updateHints(); clearOutput(); }); }
 
@@ -607,13 +939,13 @@
     initTheme();
     try { reverseMode = localStorage.getItem('reverseMode') === '1'; } catch(e) { reverseMode = false; }
     if (swapBtn) swapBtn.setAttribute('aria-pressed', reverseMode ? 'true' : 'false');
-    applyModeUI();
 
     // Per request: always start with an empty history on each open
     try { localStorage.removeItem('hist'); } catch(e) {}
 
-    updateHints();
+    applyLanguage(currentLang);
     setManualUI();
+    updateHints();
     clearOutput();
 
     // ===== Console self-tests (compact) =====
