@@ -151,15 +151,35 @@
     }
     
     body.light select{
-      
+
       -webkit-appearance:none; -moz-appearance:none; appearance:none;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%230d1220'/></svg>");
       background-repeat:no-repeat;
-      background-position:12px center;  
-      background-size:14px 14px;        
-      padding-left:36px;                
+      background-position:12px center;
+      background-size:14px 14px;
+      padding-left:36px;
       text-align:right; text-align-last:right; direction:rtl;
     }
+
+    html[dir="ltr"] select{
+      text-align:left;
+      text-align-last:left;
+      direction:ltr;
+      background-position:calc(100% - 12px) center;
+      padding-left:12px;
+      padding-right:36px;
+    }
+
+    html[dir="ltr"] body.light select{
+      background-position:calc(100% - 12px) center;
+      padding-right:36px;
+      padding-left:12px;
+      text-align:left;
+      text-align-last:left;
+      direction:ltr;
+    }
+
+    html[dir="ltr"] select option{direction:ltr; text-align:left;}
     
     select::-ms-expand{display:none}
     
@@ -179,23 +199,30 @@
     body{min-height:100svh;height:100dvh;overflow:hidden}
     @supports (height: 100dvh){ body{height:100dvh} }
       
-    @media (max-width: 520px) and (orientation: portrait){
-      .wrap{max-width:100%; margin:20px auto; padding:16px 18px; padding-left:max(18px, env(safe-area-inset-left, 0px)); padding-right:max(18px, env(safe-area-inset-right, 0px));}
-      
-      .row-3{grid-template-columns: minmax(0,1fr) minmax(120px,0.7fr) minmax(0,1fr); gap:10px}
-      label{font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-      
-      select, input{min-height:40px; font-size:14px}
+    @media (max-width: 520px){
+      body{overflow:auto; min-height:100dvh;}
+      .wrap{max-width:100%; margin:20px auto 32px; padding:16px clamp(16px, 4vw, 24px); padding-left:max(clamp(16px, 4vw, 24px), env(safe-area-inset-left, 0px)); padding-right:max(clamp(16px, 4vw, 24px), env(safe-area-inset-right, 0px));}
+      .card{padding:16px;}
+      .topbar{flex-direction:column; align-items:flex-start; gap:12px;}
+      .actions{width:100%; justify-content:flex-end; gap:8px; flex-wrap:wrap;}
+      .row-3{grid-template-columns:1fr; gap:12px;}
+      .row{grid-template-columns:1fr; gap:18px;}
+      .row-3 > div:nth-child(2) .grid{gap:6px !important}
+      label{font-size:12px; white-space:normal;}
+      select, input{min-height:42px; font-size:14px;}
       select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px; text-overflow:ellipsis}
       body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px}
-      
-      .row-3 > div:nth-child(2) .grid{gap:6px !important}
-      #scaleSelect, #scaleN{font-size:14px}
+      html[dir="ltr"] select{background-position:calc(100% - 8px) center; padding-right:28px; padding-left:10px;}
+      html[dir="ltr"] body.light select{background-position:calc(100% - 8px) center; padding-right:28px; padding-left:10px;}
+      .flex{gap:10px;}
+      .big{font-size:24px;}
+      .footer-bar{flex-direction:column; align-items:flex-start; gap:16px;}
+      .footer-right{width:100%; justify-content:flex-start;}
     }
       
     .footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-    @media (max-width: 520px) and (orientation: portrait){
-      .footer-bar{align-items:flex-end}
+    @media (max-width: 520px){
+      .footer-left{gap:8px;}
     }
       
     .ver-section{margin-top:8px}
@@ -222,6 +249,7 @@
       
     .footer-right{display:inline-flex;align-items:center;gap:8px}
     .dl-anchor{position:relative;display:inline-block}
+    #dlBtn{padding:4px 8px;gap:4px;font-size:11px}
     .dl-pop{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:260px; padding:8px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:95}
     .dl-pop.hidden{display:none}
     .dl-item{display:flex; align-items:center; gap:8px; padding:8px; border-radius:8px; color:inherit; text-decoration:none}
