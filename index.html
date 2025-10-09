@@ -54,7 +54,7 @@
   <style>
     :root { --bg:#0f1320; --card:#161a2b; --muted:#8ea0b9; --text:#eef3ff; --accent:#7aa2ff; }
     *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);}    
+    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);overflow-x:hidden;overflow-y:auto;}
     .wrap{max-width:860px;margin:40px auto;padding:24px}
     h1{font-size:22px;margin:0 0 16px}
     p.desc{margin:0 0 22px;color:var(--muted)}
@@ -176,7 +176,7 @@
     body.light .ver-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
       
     html, body{height:100%}
-    body{min-height:100svh;height:100dvh;overflow:hidden}
+    body{min-height:100svh;height:100dvh;overflow-x:hidden;overflow-y:auto}
     @supports (height: 100dvh){ body{height:100dvh} }
       
     @media (max-width: 520px) and (orientation: portrait){
