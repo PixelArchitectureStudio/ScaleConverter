@@ -54,7 +54,7 @@
   <style>
     :root { --bg:#0f1320; --card:#161a2b; --muted:#8ea0b9; --text:#eef3ff; --accent:#7aa2ff; }
     *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);}    
+    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);overflow-x:hidden;overflow-y:hidden;}
     .wrap{max-width:860px;margin:40px auto;padding:24px}
     h1{font-size:22px;margin:0 0 16px}
     p.desc{margin:0 0 22px;color:var(--muted)}
@@ -176,21 +176,40 @@
     body.light .ver-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
       
     html, body{height:100%}
-    body{min-height:100svh;height:100dvh;overflow:hidden}
+    body{min-height:100svh;height:100dvh;overflow-x:hidden;overflow-y:hidden}
     @supports (height: 100dvh){ body{height:100dvh} }
       
     @media (max-width: 520px) and (orientation: portrait){
       .wrap{max-width:100%; margin:20px auto; padding:16px 18px; padding-left:max(18px, env(safe-area-inset-left, 0px)); padding-right:max(18px, env(safe-area-inset-right, 0px));}
-      
+
       .row-3{grid-template-columns: minmax(0,1fr) minmax(120px,0.7fr) minmax(0,1fr); gap:10px}
       label{font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-      
+
       select, input{min-height:40px; font-size:14px}
       select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px; text-overflow:ellipsis}
       body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px}
-      
+
       .row-3 > div:nth-child(2) .grid{gap:6px !important}
       #scaleSelect, #scaleN{font-size:14px}
+    }
+
+    @media (max-width: 430px){
+      .wrap{margin:16px auto; padding:16px 14px; gap:16px}
+      .card{padding:16px}
+      .topbar{flex-wrap:wrap; gap:8px}
+      .topbar h1{font-size:20px}
+      .actions{gap:8px}
+      .row{grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px}
+      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.85fr) minmax(0,1fr); gap:10px}
+      .row-3 > div:nth-child(2) .grid{gap:6px !important}
+      label{font-size:11px}
+      select,input{padding:10px; font-size:13px}
+      select{background-position:8px center; background-size:12px 12px; padding-left:26px}
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:26px}
+      .footer-bar{gap:8px}
+      .footer-left{gap:4px}
+      .footer-right{gap:6px}
+      #dlBtn, #versionBtn{min-width:0}
     }
       
     .footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -382,7 +401,7 @@
                 <span id="downloadLabel" data-i18n-key="downloadLabel">دانلود</span>
               </button>
               <div id="dlPop" class="dl-pop hidden" role="menu" aria-label="دانلود">
-                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.3/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem">
+                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe" target="_blank" rel="noopener" id="dlWin" class="dl-item" role="menuitem">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
                     <rect x="13" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
@@ -409,11 +428,11 @@
                 </a>
               </div>
             </span>
-            <button id="versionBtn" class="version mono ltr" type="button" aria-haspopup="dialog" aria-expanded="false" title="اطلاعات نسخه">v1.3</button>
+            <button id="versionBtn" class="version mono ltr" type="button" aria-haspopup="dialog" aria-expanded="false" title="اطلاعات نسخه">v1.4</button>
           </span>
           <div id="verPop" class="ver-pop hidden" role="dialog" aria-label="اطلاعات نسخه">
             <div class="ver-title" id="versionTitle" data-i18n-key="versionTitle">نرم‌افزار تبدیل مقیاس</div>
-            <div><span id="versionLabel" data-i18n-key="versionLabel">نسخه</span> <span class="mono ltr" id="versionText">1.3</span></div>
+            <div><span id="versionLabel" data-i18n-key="versionLabel">نسخه</span> <span class="mono ltr" id="versionText">1.4</span></div>
             <div class="ver-section">
               <div class="label" id="versionChangesLabel" data-i18n-key="versionChangesLabel">آخرین تغییرات</div>
               <div class="ver-changes" id="versionChanges" data-i18n-key="versionChanges">اصلاح رابط کاربری برای نمایش بهتر در حالت پرتره موبایل</div>
@@ -437,7 +456,7 @@
 
   <script>
     const unitToMM = { mm:1, cm:10, m:1000, km:1000000, in:25.4, ft:304.8, yd:914.4, mi:1609344, nmi:1852000 };
-    const APP_VERSION = '1.3';
+    const APP_VERSION = '1.4';
     const el = (id) => document.getElementById(id);
 
     const realUnit = el('realUnit');
@@ -489,6 +508,32 @@
     const versionHint = el('versionHint');
     const footnote = el('footnote');
     const converterForm = el('converterForm');
+    const bodyEl = document.body;
+
+    function unlockBodyScroll(){
+      if (!bodyEl.classList.contains('scroll-unlocked')){
+        bodyEl.style.overflowY = 'auto';
+        bodyEl.classList.add('scroll-unlocked');
+      }
+    }
+
+    function relockBodyScroll(){
+      if (bodyEl.classList.contains('scroll-unlocked')){
+        bodyEl.style.removeProperty('overflow-y');
+        bodyEl.classList.remove('scroll-unlocked');
+      }
+    }
+
+    const selectElements = Array.from(document.querySelectorAll('select'));
+    const relockAfterInteraction = () => setTimeout(relockBodyScroll, 150);
+
+    selectElements.forEach((selectEl) => {
+      selectEl.addEventListener('focus', unlockBodyScroll);
+      selectEl.addEventListener('blur', relockAfterInteraction);
+      selectEl.addEventListener('change', relockAfterInteraction);
+    });
+
+    window.addEventListener('pagehide', relockBodyScroll);
     const locales = {
       fa: {
         code: 'fa',
