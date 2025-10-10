@@ -61,6 +61,7 @@
     .card{background:linear-gradient(180deg, #1a1f36, #121629);border:1px solid #2a2f47; padding:18px;border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.82fr) minmax(0,1fr)}
     label{display:block;font-size:12px;color:#aab8d8;margin:0 0 6px}
     select,input{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2b3152;background:#0f1326;color:var(--text);outline:none}
     input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0;}
@@ -183,6 +184,7 @@
       .wrap{max-width:100%; margin:20px auto; padding:16px 18px; padding-left:max(18px, env(safe-area-inset-left, 0px)); padding-right:max(18px, env(safe-area-inset-right, 0px));}
       
       .row-3{grid-template-columns: minmax(0,1fr) minmax(120px,0.7fr) minmax(0,1fr); gap:10px}
+      html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(120px,0.6fr) minmax(0,1fr)}
       label{font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
       
       select, input{min-height:40px; font-size:14px}
