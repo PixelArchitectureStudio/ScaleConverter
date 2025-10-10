@@ -547,6 +547,13 @@
     const converterForm = el('converterForm');
     const wrapEl = document.querySelector('.wrap');
     const SCROLL_UNLOCK_MAX_WIDTH = 520;
+    function shouldOpenExternally(){
+      const protocol = window.location && window.location.protocol;
+      if (protocol === 'file:' || protocol === 'app:' || protocol === 'app+https:' || protocol === 'app+http:' || protocol === 'ms-appx:' || protocol === 'ms-appx-web:') return true;
+      const ua = navigator && navigator.userAgent ? navigator.userAgent : '';
+      return /(DecSoft|AppBuilder|Cordova|Electron|NWJS)/i.test(ua);
+    }
+    const FORCE_SYSTEM_BROWSER = shouldOpenExternally();
     let scrollLockTimer = null;
     const locales = {
       fa: {
@@ -1025,7 +1032,27 @@
     function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
     if (dlWin){
-      dlWin.addEventListener('click', function(){
+      dlWin.addEventListener('click', function(e){
+        if (FORCE_SYSTEM_BROWSER){
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          let opened = null;
+          try {
+            opened = window.open(href, '_system');
+          } catch(err){
+            opened = null;
+          }
+          if (!opened){
+            try {
+              opened = window.open(href, this.getAttribute('target') || '_blank');
+            } catch(err){
+              opened = null;
+            }
+          }
+          if (!opened){
+            window.location.href = href;
+          }
+        }
         toggleDownload(false);
       });
     }
