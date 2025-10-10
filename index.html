@@ -549,30 +549,58 @@
     const converterForm = el('converterForm');
     const bodyEl = document.body;
 
-    function unlockBodyScroll(){
-      if (!bodyEl.classList.contains('scroll-unlocked')){
-        bodyEl.style.overflowY = 'auto';
-        bodyEl.classList.add('scroll-unlocked');
-      }
+    const selectElements = Array.from(document.querySelectorAll('select'));
+    const SCROLL_UNLOCK_BREAKPOINT = 520;
+    let scrollLockFrame = null;
+
+    function needsBodyScroll(){
+      if (!bodyEl) return false;
+      if (window.innerWidth > SCROLL_UNLOCK_BREAKPOINT) return false;
+      const docEl = document.documentElement;
+      const totalHeight = Math.max(bodyEl.scrollHeight, docEl ? docEl.scrollHeight : 0);
+      const viewportHeight = window.innerHeight || (docEl ? docEl.clientHeight : 0);
+      return totalHeight > (viewportHeight + 1);
     }
 
-    function relockBodyScroll(){
-      if (bodyEl.classList.contains('scroll-unlocked')){
+    function updateBodyScrollLock(){
+      if (!bodyEl) return;
+      if (needsBodyScroll()){
+        if (!bodyEl.classList.contains('scroll-unlocked')){
+          bodyEl.style.overflowY = 'auto';
+          bodyEl.classList.add('scroll-unlocked');
+        }
+      } else if (bodyEl.classList.contains('scroll-unlocked')){
         bodyEl.style.removeProperty('overflow-y');
         bodyEl.classList.remove('scroll-unlocked');
       }
     }
 
-    const selectElements = Array.from(document.querySelectorAll('select'));
-    const relockAfterInteraction = () => setTimeout(relockBodyScroll, 150);
+    function scheduleBodyScrollLockUpdate(){
+      if (scrollLockFrame) cancelAnimationFrame(scrollLockFrame);
+      scrollLockFrame = requestAnimationFrame(() => {
+        scrollLockFrame = null;
+        updateBodyScrollLock();
+      });
+    }
+
+    const relockAfterInteraction = () => setTimeout(updateBodyScrollLock, 150);
 
     selectElements.forEach((selectEl) => {
-      selectEl.addEventListener('focus', unlockBodyScroll);
+      selectEl.addEventListener('focus', updateBodyScrollLock);
       selectEl.addEventListener('blur', relockAfterInteraction);
       selectEl.addEventListener('change', relockAfterInteraction);
     });
 
-    window.addEventListener('pagehide', relockBodyScroll);
+    window.addEventListener('resize', scheduleBodyScrollLockUpdate);
+    window.addEventListener('orientationchange', scheduleBodyScrollLockUpdate);
+    window.addEventListener('load', updateBodyScrollLock);
+    window.addEventListener('pagehide', () => {
+      if (!bodyEl) return;
+      bodyEl.style.removeProperty('overflow-y');
+      bodyEl.classList.remove('scroll-unlocked');
+    });
+
+    updateBodyScrollLock();
     const locales = {
       fa: {
         code: 'fa',
