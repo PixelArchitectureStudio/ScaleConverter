@@ -254,6 +254,7 @@
       #scaleSelect, #scaleN{font-size:11.5px}
       body.lang-en select, body.lang-en input{font-size:10.5px}
       body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:10.5px}
+      #downloadLabel{font-size:11px}
       body.lang-en #downloadLabel{font-size:10px}
       body.lang-en select{background-position:calc(100% - 6px) center; padding-right:24px; padding-left:9px}
       body.light.lang-en select{background-position:calc(100% - 6px) center}
@@ -272,6 +273,84 @@
       .ig-link .handle{font-size:11px}
       .ig-link .handle .mono.ltr{font-size:10px}
       .dl-pop{left:58%; transform:translateX(-48%); width:min(200px, calc(100vw - 28px));}
+    }
+
+    @media (max-width: 340px){
+      .wrap{margin:26px auto 14px; padding:12px 10px}
+      .card{padding:12px}
+      .topbar{gap:4px}
+      .topbar h1{font-size:17px}
+      h1{font-size:17px}
+      p.desc{font-size:12.5px}
+      .actions{gap:4px}
+      .lang-btn{height:24px; min-width:50px; padding:0 10px; font-size:10px}
+      .switch{width:44px; height:24px}
+      .switch .thumb{width:20px; height:20px}
+      .switch[data-mode="light"] .thumb{transform:translateX(20px)}
+      .switch .icon{font-size:10px}
+      .switch .icon.sun{left:5px}
+      .switch .icon.moon{right:5px}
+      .row{gap:7px}
+      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.75fr) minmax(0,1fr); gap:7px}
+      label{font-size:10px}
+      select,input{padding:8px 8px; font-size:10.5px; border-radius:9px; min-height:34px}
+      select{background-position:6px center; background-size:10px 10px; padding-left:22px}
+      body.light select{background-position:6px center; background-size:10px 10px; padding-left:22px}
+      #scaleSelect, #scaleN{font-size:10.5px}
+      body.lang-en select, body.lang-en input{font-size:9.8px}
+      body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:9.8px}
+      body.lang-en select{background-position:calc(100% - 6px) center; padding-right:22px; padding-left:8px}
+      body.light.lang-en select{background-position:calc(100% - 6px) center}
+      #downloadLabel{font-size:10px}
+      body.lang-en #downloadLabel{font-size:9px}
+      .grid{gap:10px}
+      .out{padding:12px; border-radius:11px}
+      .big{font-size:22px}
+      .copy{padding:6px 7px; font-size:11px}
+      #calcBtn{padding:9px 10px; font-size:12px}
+      .hint{font-size:10px}
+      .footer{font-size:10px}
+      .footer-bar{gap:6px}
+      .footer-left{gap:3px}
+      .footer-right{gap:5px}
+      .version{min-height:24px; padding:4px 6px; font-size:10px}
+      .ig-link{gap:4px; padding:4px 6px; font-size:10px}
+      .ig-link .handle{font-size:10px}
+      .ig-link .handle .mono.ltr{font-size:9px}
+      .dl-pop{left:58%; transform:translateX(-50%); width:min(190px, calc(100vw - 24px));}
+    }
+
+    @media (max-width: 320px){
+      .wrap{margin:24px auto 12px; padding:10px 8px}
+      .card{padding:10px}
+      .topbar h1{font-size:16px}
+      h1{font-size:16px}
+      p.desc{font-size:12px}
+      .lang-btn{height:22px; min-width:46px; padding:0 9px; font-size:9.5px}
+      .switch{width:42px; height:22px}
+      .switch .thumb{width:18px; height:18px}
+      .switch[data-mode="light"] .thumb{transform:translateX(18px)}
+      .switch .icon{font-size:9.5px}
+      .row{gap:6px}
+      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.7fr) minmax(0,1fr); gap:6px}
+      label{font-size:9.5px}
+      select,input{padding:7px 7px; font-size:10px; min-height:32px}
+      select{background-position:5px center; background-size:9px 9px; padding-left:20px}
+      body.light select{background-position:5px center; background-size:9px 9px; padding-left:20px}
+      #scaleSelect, #scaleN{font-size:10px}
+      body.lang-en select, body.lang-en input{font-size:9.2px}
+      body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:9.2px}
+      body.lang-en select{background-position:calc(100% - 5px) center; padding-right:20px; padding-left:7px}
+      body.light.lang-en select{background-position:calc(100% - 5px) center}
+      #downloadLabel{font-size:9.5px}
+      body.lang-en #downloadLabel{font-size:8.8px}
+      .copy{font-size:10.5px}
+      #calcBtn{padding:8px 9px; font-size:11px}
+      .version{font-size:9.5px; padding:4px 6px; min-height:22px}
+      .ig-link{font-size:9.5px; padding:4px 5px}
+      .ig-link .handle{font-size:9.5px}
+      .ig-link .handle .mono.ltr{font-size:8.6px}
+      .dl-pop{left:58%; transform:translateX(-52%); width:min(180px, calc(100vw - 20px));}
     }
       
     .footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
