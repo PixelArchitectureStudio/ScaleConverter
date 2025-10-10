@@ -437,7 +437,7 @@
                 <span id="downloadLabel" data-i18n-key="downloadLabel">دانلود</span>
               </button>
               <div id="dlPop" class="dl-pop hidden" role="menu" aria-label="دانلود">
-                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.3/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem">
+                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem" target="_blank" rel="noopener">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
                     <rect x="13" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
@@ -522,6 +522,7 @@
     const versionText = el('versionText');
     const dlBtn = el('dlBtn');
     const dlPop = el('dlPop');
+    const dlWin = el('dlWin');
     const langToggle = el('langToggle');
     const langToggleText = el('langToggleText');
     const pageHeading = el('pageHeading');
@@ -546,6 +547,13 @@
     const converterForm = el('converterForm');
     const wrapEl = document.querySelector('.wrap');
     const SCROLL_UNLOCK_MAX_WIDTH = 520;
+    function shouldOpenExternally(){
+      const protocol = window.location && window.location.protocol;
+      if (protocol === 'file:' || protocol === 'app:' || protocol === 'app+https:' || protocol === 'app+http:' || protocol === 'ms-appx:' || protocol === 'ms-appx-web:') return true;
+      const ua = navigator && navigator.userAgent ? navigator.userAgent : '';
+      return /(DecSoft|AppBuilder|Cordova|Electron|NWJS)/i.test(ua);
+    }
+    const FORCE_SYSTEM_BROWSER = shouldOpenExternally();
     let scrollLockTimer = null;
     const locales = {
       fa: {
@@ -1023,6 +1031,31 @@
     if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
     function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
+    if (dlWin){
+      dlWin.addEventListener('click', function(e){
+        if (FORCE_SYSTEM_BROWSER){
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          let opened = null;
+          try {
+            opened = window.open(href, '_system');
+          } catch(err){
+            opened = null;
+          }
+          if (!opened){
+            try {
+              opened = window.open(href, this.getAttribute('target') || '_blank');
+            } catch(err){
+              opened = null;
+            }
+          }
+          if (!opened){
+            window.location.href = href;
+          }
+        }
+        toggleDownload(false);
+      });
+    }
 
     // FIX: remove stray "$1" and properly handle outside-click to close popovers
     document.addEventListener('click', function(e){
