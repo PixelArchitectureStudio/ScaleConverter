@@ -54,13 +54,14 @@
   <style>
     :root { --bg:#0f1320; --card:#161a2b; --muted:#8ea0b9; --text:#eef3ff; --accent:#7aa2ff; }
     *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);overflow-x:hidden;overflow-y:hidden;}
-    .wrap{max-width:860px;margin:56px auto 48px;padding:24px}
+    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);}    
+    .wrap{max-width:860px;margin:40px auto;padding:24px}
     h1{font-size:22px;margin:0 0 16px}
     p.desc{margin:0 0 22px;color:var(--muted)}
     .card{background:linear-gradient(180deg, #1a1f36, #121629);border:1px solid #2a2f47; padding:18px;border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.82fr) minmax(0,1fr)}
     label{display:block;font-size:12px;color:#aab8d8;margin:0 0 6px}
     select,input{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2b3152;background:#0f1326;color:var(--text);outline:none}
     input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0;}
@@ -139,44 +140,31 @@
       -webkit-appearance:none; -moz-appearance:none; appearance:none;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%23ffffff'/></svg>");
       background-repeat:no-repeat;
-      background-position:12px center;
+      background-position:12px center; 
       background-size:14px 14px;
-
-      text-align:right;
-      text-align-last:right;
-      direction:rtl;
-
-      padding-left:36px;
+      
+      text-align:right;            
+      text-align-last:right;       
+      direction:rtl;               
+      
+      padding-left:36px;           
       padding-right:12px;
     }
-
+    
     body.light select{
-
+      
       -webkit-appearance:none; -moz-appearance:none; appearance:none;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%230d1220'/></svg>");
       background-repeat:no-repeat;
-      background-position:12px center;
-      background-size:14px 14px;
-      padding-left:36px;
+      background-position:12px center;  
+      background-size:14px 14px;        
+      padding-left:36px;                
       text-align:right; text-align-last:right; direction:rtl;
     }
-
+    
     select::-ms-expand{display:none}
-
+    
     select option{direction:rtl; text-align:right;}
-
-    body.lang-en select{
-      direction:ltr;
-      text-align:left;
-      text-align-last:left;
-      padding-right:36px;
-      padding-left:12px;
-      background-position:calc(100% - 12px) center;
-    }
-
-    body.light.lang-en select{background-position:calc(100% - 12px) center;}
-
-    body.lang-en select option{direction:ltr; text-align:left;}
       
     .footer-bar{display:flex;align-items:center;justify-content:space-between;position:relative}
     .version{color:#90a4d4;font-size:12px;border:1px solid #2b3152;border-radius:10px;padding:4px 10px;background:#0f1326;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;gap:6px;min-height:28px;font-family:inherit;font-weight:600}
@@ -189,168 +177,73 @@
     body.light .ver-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
       
     html, body{height:100%}
-    body{min-height:100svh;height:100dvh;overflow-x:hidden;overflow-y:hidden}
+    body{min-height:100svh;height:100dvh;overflow:hidden}
     @supports (height: 100dvh){ body{height:100dvh} }
       
     @media (max-width: 520px) and (orientation: portrait){
-      .wrap{max-width:100%; margin:28px auto 24px; padding:16px 18px; padding-left:max(18px, env(safe-area-inset-left, 0px)); padding-right:max(18px, env(safe-area-inset-right, 0px));}
+      .wrap{max-width:100%; margin:20px auto; padding:16px 18px; padding-left:max(18px, env(safe-area-inset-left, 0px)); padding-right:max(18px, env(safe-area-inset-right, 0px));}
 
       .row-3{grid-template-columns: minmax(0,1fr) minmax(120px,0.7fr) minmax(0,1fr); gap:10px}
+      html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(120px,0.6fr) minmax(0,1fr)}
       label{font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-
+      
       select, input{min-height:40px; font-size:14px}
       select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px; text-overflow:ellipsis}
-      body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px}
-      body.lang-en label{white-space:normal; text-overflow:unset}
-      body.lang-en select{background-position:calc(100% - 8px) center; padding-right:28px; padding-left:10px; text-overflow:ellipsis}
-      body.light.lang-en select{background-position:calc(100% - 8px) center}
-
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px}
+      
       .row-3 > div:nth-child(2) .grid{gap:6px !important}
       #scaleSelect, #scaleN{font-size:14px}
     }
 
-    @media (max-width: 430px){
-      .wrap{margin:22px auto 18px; padding:16px 14px; gap:16px}
-      .card{padding:16px}
-      .topbar{flex-wrap:wrap; gap:8px}
-      .topbar h1{font-size:20px}
-      .actions{gap:8px}
-      .row{grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px}
-      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.85fr) minmax(0,1fr); gap:10px}
-      .row-3 > div:nth-child(2) .grid{gap:6px !important}
-      label{font-size:11px}
-      select,input{padding:10px; font-size:13px}
-      select{background-position:8px center; background-size:12px 12px; padding-left:26px}
-      body.light select{background-position:8px center; background-size:12px 12px; padding-left:26px}
-      body.lang-en select{background-position:calc(100% - 8px) center; padding-right:26px; padding-left:10px}
-      body.light.lang-en select{background-position:calc(100% - 8px) center}
-      .footer-bar{gap:8px}
-      .footer-left{gap:4px}
-      .footer-right{gap:6px}
-      #dlBtn, #versionBtn{min-width:0}
+    @media (max-width: 420px){
+      .wrap{padding:14px 16px;}
+      .card{padding:16px;}
+      .row, .row-3{gap:10px;}
+      label{font-size:11px;}
+      select, input{padding:10px 10px; font-size:13px; min-height:38px;}
+      select{background-position:8px center; background-size:12px 12px; padding-left:26px; padding-right:10px;}
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:26px; padding-right:10px;}
+      #calcBtn{padding:10px 12px; font-size:14px;}
+      .copy{padding:7px 9px; font-size:13px;}
+      .version{padding:4px 8px; font-size:11px;}
+      .ig-link.version{max-width:170px;}
+      .dl-pop{width:min(240px, calc(100vw - 40px)); left:50%; transform:translateX(-50%);}
+    }
+
+    @media (max-width: 400px){
+      html[lang="en"] select,
+      html[lang="en"] input{font-size:12px;}
+      html[lang="en"] #scaleSelect,
+      html[lang="en"] #scaleN{font-size:12px;}
+      html[lang="en"] label{font-size:10.8px;}
+      html[lang="en"] #downloadLabel{font-size:11.5px;}
     }
 
     @media (max-width: 360px){
-      .wrap{margin:28px auto 16px; padding:14px 12px}
-      .card{padding:14px}
-      .topbar{gap:6px}
-      .topbar h1{font-size:18px}
-      h1{font-size:18px}
-      p.desc{font-size:13px; line-height:1.5}
-      .actions{gap:6px}
-      .lang-btn{height:26px; min-width:54px; padding:0 12px; font-size:11px}
-      .switch{width:48px; height:26px}
-      .switch .thumb{width:22px; height:22px}
-      .switch[data-mode="light"] .thumb{transform:translateX(22px)}
-      .switch .icon{font-size:11px}
-      .switch .icon.sun{left:6px}
-      .switch .icon.moon{right:6px}
-      .row{gap:8px}
-      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.78fr) minmax(0,1fr); gap:8px}
-      label{font-size:10.5px}
-      select,input{padding:9px 9px; font-size:11.5px; border-radius:10px; min-height:36px}
-      select{background-position:6px center; background-size:11px 11px; padding-left:24px}
-      body.light select{background-position:6px center; background-size:11px 11px; padding-left:24px}
-      #scaleSelect, #scaleN{font-size:11.5px}
-      body.lang-en select, body.lang-en input{font-size:10.5px}
-      body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:10.5px}
-      #downloadLabel{font-size:11px}
-      body.lang-en #downloadLabel{font-size:10px}
-      body.lang-en select{background-position:calc(100% - 6px) center; padding-right:24px; padding-left:9px}
-      body.light.lang-en select{background-position:calc(100% - 6px) center}
-      .grid{gap:12px}
-      .out{padding:14px; border-radius:12px}
-      .big{font-size:24px}
-      .copy{padding:6px 8px; font-size:12px}
-      #calcBtn{padding:10px 12px; font-size:13px}
-      .hint{font-size:11px}
-      .footer{font-size:11px}
-      .footer-bar{gap:6px}
-      .footer-left{gap:4px}
-      .footer-right{gap:6px}
-      .version{min-height:26px; padding:4px 8px; font-size:11px}
-      .ig-link{gap:4px; padding:4px 6px; font-size:11px}
-      .ig-link .handle{font-size:11px}
-      .ig-link .handle .mono.ltr{font-size:10px}
-      .dl-pop{left:58%; transform:translateX(-48%); width:min(200px, calc(100vw - 28px));}
+      .wrap{padding:12px 14px;}
+      .card{padding:14px;}
+      .row, .row-3{gap:8px;}
+      select, input{padding:9px 9px; font-size:12.5px; min-height:36px;}
+      select{background-position:8px center; background-size:12px 12px; padding-left:24px; padding-right:9px;}
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:24px; padding-right:9px;}
+      #calcBtn{padding:10px; font-size:13px;}
+      .copy{padding:6px 8px; font-size:12.5px;}
+      #downloadLabel{font-size:12.5px;}
+      .footer-left, .footer-right{gap:6px;}
+      .ig-link.version{max-width:160px;}
+      .dl-pop{width:min(220px, calc(100vw - 36px));}
     }
 
-    @media (max-width: 340px){
-      .wrap{margin:26px auto 14px; padding:12px 10px}
-      .card{padding:12px}
-      .topbar{gap:4px}
-      .topbar h1{font-size:17px}
-      h1{font-size:17px}
-      p.desc{font-size:12.5px}
-      .actions{gap:4px}
-      .lang-btn{height:24px; min-width:50px; padding:0 10px; font-size:10px}
-      .switch{width:44px; height:24px}
-      .switch .thumb{width:20px; height:20px}
-      .switch[data-mode="light"] .thumb{transform:translateX(20px)}
-      .switch .icon{font-size:10px}
-      .switch .icon.sun{left:5px}
-      .switch .icon.moon{right:5px}
-      .row{gap:7px}
-      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.75fr) minmax(0,1fr); gap:7px}
-      label{font-size:10px}
-      select,input{padding:8px 8px; font-size:10.5px; border-radius:9px; min-height:34px}
-      select{background-position:6px center; background-size:10px 10px; padding-left:22px}
-      body.light select{background-position:6px center; background-size:10px 10px; padding-left:22px}
-      #scaleSelect, #scaleN{font-size:10.5px}
-      body.lang-en select, body.lang-en input{font-size:9.8px}
-      body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:9.8px}
-      body.lang-en select{background-position:calc(100% - 6px) center; padding-right:22px; padding-left:8px}
-      body.light.lang-en select{background-position:calc(100% - 6px) center}
-      #downloadLabel{font-size:10px}
-      body.lang-en #downloadLabel{font-size:9px}
-      .grid{gap:10px}
-      .out{padding:12px; border-radius:11px}
-      .big{font-size:22px}
-      .copy{padding:6px 7px; font-size:11px}
-      #calcBtn{padding:9px 10px; font-size:12px}
-      .hint{font-size:10px}
-      .footer{font-size:10px}
-      .footer-bar{gap:6px}
-      .footer-left{gap:3px}
-      .footer-right{gap:5px}
-      .version{min-height:24px; padding:4px 6px; font-size:10px}
-      .ig-link{gap:4px; padding:4px 6px; font-size:10px}
-      .ig-link .handle{font-size:10px}
-      .ig-link .handle .mono.ltr{font-size:9px}
-      .dl-pop{left:58%; transform:translateX(-50%); width:min(190px, calc(100vw - 24px));}
-    }
-
-    @media (max-width: 320px){
-      .wrap{margin:24px auto 12px; padding:10px 8px}
-      .card{padding:10px}
-      .topbar h1{font-size:16px}
-      h1{font-size:16px}
-      p.desc{font-size:12px}
-      .lang-btn{height:22px; min-width:46px; padding:0 9px; font-size:9.5px}
-      .switch{width:42px; height:22px}
-      .switch .thumb{width:18px; height:18px}
-      .switch[data-mode="light"] .thumb{transform:translateX(18px)}
-      .switch .icon{font-size:9.5px}
-      .row{gap:6px}
-      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.7fr) minmax(0,1fr); gap:6px}
-      label{font-size:9.5px}
-      select,input{padding:7px 7px; font-size:10px; min-height:32px}
-      select{background-position:5px center; background-size:9px 9px; padding-left:20px}
-      body.light select{background-position:5px center; background-size:9px 9px; padding-left:20px}
-      #scaleSelect, #scaleN{font-size:10px}
-      body.lang-en select, body.lang-en input{font-size:9.2px}
-      body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:9.2px}
-      body.lang-en select{background-position:calc(100% - 5px) center; padding-right:20px; padding-left:7px}
-      body.light.lang-en select{background-position:calc(100% - 5px) center}
-      #downloadLabel{font-size:9.5px}
-      body.lang-en #downloadLabel{font-size:8.8px}
-      .copy{font-size:10.5px}
-      #calcBtn{padding:8px 9px; font-size:11px}
-      .version{font-size:9.5px; padding:4px 6px; min-height:22px}
-      .ig-link{font-size:9.5px; padding:4px 5px}
-      .ig-link .handle{font-size:9.5px}
-      .ig-link .handle .mono.ltr{font-size:8.6px}
-      .dl-pop{left:58%; transform:translateX(-52%); width:min(180px, calc(100vw - 20px));}
+    @media (max-width: 360px){
+      html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.55fr) minmax(0,1fr);}
+      html[lang="en"] select,
+      html[lang="en"] input{font-size:11.5px;}
+      html[lang="en"] #scaleSelect,
+      html[lang="en"] #scaleN{font-size:11.5px;}
+      html[lang="en"] label{font-size:10.5px;}
+      html[lang="en"] #downloadLabel{font-size:11px;}
+      html[lang="en"] .version{font-size:10.5px; padding:4px 6px;}
+      html[lang="en"] .copy{font-size:11.5px;}
     }
       
     .footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -382,7 +275,7 @@
       
     .footer-right{display:inline-flex;align-items:center;gap:8px}
     .dl-anchor{position:relative;display:inline-block}
-    .dl-pop{position:absolute; left:56%; transform:translateX(-46%); bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:min(220px, calc(100vw - 40px)); padding:8px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:95}
+    .dl-pop{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:260px; padding:8px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:95}
     .dl-pop.hidden{display:none}
     .dl-item{display:flex; align-items:center; gap:8px; padding:8px; border-radius:8px; color:inherit; text-decoration:none}
     .dl-item:hover{background:#141a33}
@@ -542,7 +435,7 @@
                 <span id="downloadLabel" data-i18n-key="downloadLabel">دانلود</span>
               </button>
               <div id="dlPop" class="dl-pop hidden" role="menu" aria-label="دانلود">
-                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe" target="_blank" rel="noopener" id="dlWin" class="dl-item" role="menuitem">
+                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.3/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
                     <rect x="13" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
@@ -569,11 +462,11 @@
                 </a>
               </div>
             </span>
-            <button id="versionBtn" class="version mono ltr" type="button" aria-haspopup="dialog" aria-expanded="false" title="اطلاعات نسخه">v1.4</button>
+            <button id="versionBtn" class="version mono ltr" type="button" aria-haspopup="dialog" aria-expanded="false" title="اطلاعات نسخه">v1.3</button>
           </span>
           <div id="verPop" class="ver-pop hidden" role="dialog" aria-label="اطلاعات نسخه">
             <div class="ver-title" id="versionTitle" data-i18n-key="versionTitle">نرم‌افزار تبدیل مقیاس</div>
-            <div><span id="versionLabel" data-i18n-key="versionLabel">نسخه</span> <span class="mono ltr" id="versionText">1.4</span></div>
+            <div><span id="versionLabel" data-i18n-key="versionLabel">نسخه</span> <span class="mono ltr" id="versionText">1.3</span></div>
             <div class="ver-section">
               <div class="label" id="versionChangesLabel" data-i18n-key="versionChangesLabel">آخرین تغییرات</div>
               <div class="ver-changes" id="versionChanges" data-i18n-key="versionChanges">اصلاح رابط کاربری برای نمایش بهتر در حالت پرتره موبایل</div>
@@ -649,60 +542,6 @@
     const versionHint = el('versionHint');
     const footnote = el('footnote');
     const converterForm = el('converterForm');
-    const bodyEl = document.body;
-
-    const selectElements = Array.from(document.querySelectorAll('select'));
-    const SCROLL_UNLOCK_BREAKPOINT = 520;
-    let scrollLockFrame = null;
-
-    function needsBodyScroll(){
-      if (!bodyEl) return false;
-      if (window.innerWidth > SCROLL_UNLOCK_BREAKPOINT) return false;
-      const docEl = document.documentElement;
-      const totalHeight = Math.max(bodyEl.scrollHeight, docEl ? docEl.scrollHeight : 0);
-      const viewportHeight = window.innerHeight || (docEl ? docEl.clientHeight : 0);
-      return totalHeight > (viewportHeight + 1);
-    }
-
-    function updateBodyScrollLock(){
-      if (!bodyEl) return;
-      if (needsBodyScroll()){
-        if (!bodyEl.classList.contains('scroll-unlocked')){
-          bodyEl.style.overflowY = 'auto';
-          bodyEl.classList.add('scroll-unlocked');
-        }
-      } else if (bodyEl.classList.contains('scroll-unlocked')){
-        bodyEl.style.removeProperty('overflow-y');
-        bodyEl.classList.remove('scroll-unlocked');
-      }
-    }
-
-    function scheduleBodyScrollLockUpdate(){
-      if (scrollLockFrame) cancelAnimationFrame(scrollLockFrame);
-      scrollLockFrame = requestAnimationFrame(() => {
-        scrollLockFrame = null;
-        updateBodyScrollLock();
-      });
-    }
-
-    const relockAfterInteraction = () => setTimeout(updateBodyScrollLock, 150);
-
-    selectElements.forEach((selectEl) => {
-      selectEl.addEventListener('focus', updateBodyScrollLock);
-      selectEl.addEventListener('blur', relockAfterInteraction);
-      selectEl.addEventListener('change', relockAfterInteraction);
-    });
-
-    window.addEventListener('resize', scheduleBodyScrollLockUpdate);
-    window.addEventListener('orientationchange', scheduleBodyScrollLockUpdate);
-    window.addEventListener('load', updateBodyScrollLock);
-    window.addEventListener('pagehide', () => {
-      if (!bodyEl) return;
-      bodyEl.style.removeProperty('overflow-y');
-      bodyEl.classList.remove('scroll-unlocked');
-    });
-
-    updateBodyScrollLock();
     const locales = {
       fa: {
         code: 'fa',
@@ -951,8 +790,6 @@
       currentLang = locale.code;
       document.documentElement.lang = locale.htmlLang || 'fa';
       document.documentElement.dir = locale.dir || 'rtl';
-      document.body.classList.toggle('lang-en', locale.code === 'en');
-      document.body.classList.toggle('lang-fa', locale.code !== 'en');
       if (document.title !== locale.pageTitle) document.title = locale.pageTitle;
       if (pageHeading) pageHeading.textContent = locale.heading;
       if (descriptionEl){
