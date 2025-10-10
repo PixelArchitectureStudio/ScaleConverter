@@ -139,31 +139,44 @@
       -webkit-appearance:none; -moz-appearance:none; appearance:none;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%23ffffff'/></svg>");
       background-repeat:no-repeat;
-      background-position:12px center; 
+      background-position:12px center;
       background-size:14px 14px;
-      
-      text-align:right;            
-      text-align-last:right;       
-      direction:rtl;               
-      
-      padding-left:36px;           
+
+      text-align:right;
+      text-align-last:right;
+      direction:rtl;
+
+      padding-left:36px;
       padding-right:12px;
     }
-    
+
     body.light select{
-      
+
       -webkit-appearance:none; -moz-appearance:none; appearance:none;
       background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5' fill='%230d1220'/></svg>");
       background-repeat:no-repeat;
-      background-position:12px center;  
-      background-size:14px 14px;        
-      padding-left:36px;                
+      background-position:12px center;
+      background-size:14px 14px;
+      padding-left:36px;
       text-align:right; text-align-last:right; direction:rtl;
     }
-    
+
     select::-ms-expand{display:none}
-    
+
     select option{direction:rtl; text-align:right;}
+
+    body.lang-en select{
+      direction:ltr;
+      text-align:left;
+      text-align-last:left;
+      padding-right:36px;
+      padding-left:12px;
+      background-position:calc(100% - 12px) center;
+    }
+
+    body.light.lang-en select{background-position:calc(100% - 12px) center;}
+
+    body.lang-en select option{direction:ltr; text-align:left;}
       
     .footer-bar{display:flex;align-items:center;justify-content:space-between;position:relative}
     .version{color:#90a4d4;font-size:12px;border:1px solid #2b3152;border-radius:10px;padding:4px 10px;background:#0f1326;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;line-height:1;gap:6px;min-height:28px;font-family:inherit;font-weight:600}
@@ -188,6 +201,9 @@
       select, input{min-height:40px; font-size:14px}
       select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px; text-overflow:ellipsis}
       body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px}
+      body.lang-en label{white-space:normal; text-overflow:unset}
+      body.lang-en select{background-position:calc(100% - 8px) center; padding-right:28px; padding-left:10px; text-overflow:ellipsis}
+      body.light.lang-en select{background-position:calc(100% - 8px) center}
 
       .row-3 > div:nth-child(2) .grid{gap:6px !important}
       #scaleSelect, #scaleN{font-size:14px}
@@ -206,6 +222,8 @@
       select,input{padding:10px; font-size:13px}
       select{background-position:8px center; background-size:12px 12px; padding-left:26px}
       body.light select{background-position:8px center; background-size:12px 12px; padding-left:26px}
+      body.lang-en select{background-position:calc(100% - 8px) center; padding-right:26px; padding-left:10px}
+      body.light.lang-en select{background-position:calc(100% - 8px) center}
       .footer-bar{gap:8px}
       .footer-left{gap:4px}
       .footer-right{gap:6px}
@@ -237,6 +255,8 @@
       body.lang-en select, body.lang-en input{font-size:10.5px}
       body.lang-en #scaleSelect, body.lang-en #scaleN{font-size:10.5px}
       body.lang-en #downloadLabel{font-size:10px}
+      body.lang-en select{background-position:calc(100% - 6px) center; padding-right:24px; padding-left:9px}
+      body.light.lang-en select{background-position:calc(100% - 6px) center}
       .grid{gap:12px}
       .out{padding:14px; border-radius:12px}
       .big{font-size:24px}
@@ -671,7 +691,7 @@
         langButton: 'EN',
         langToggleLabel: 'Switch language to Persian',
         htmlLang: 'en',
-        dir: 'rtl',
+        dir: 'ltr',
         themeToggleLabel: 'Toggle light/dark mode',
         pageTitle: 'Scale Converter',
         heading: 'Scale Converter',
