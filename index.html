@@ -1025,15 +1025,8 @@
     function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
     if (dlWin){
-      dlWin.addEventListener('click', function(e){
-        const url = dlWin.getAttribute('href');
-        if (!url) return;
-        const win = window.open(url, '_blank', 'noopener');
-        if (win){
-          e.preventDefault();
-          try { win.opener = null; } catch (err) {}
-          toggleDownload(false);
-        }
+      dlWin.addEventListener('click', function(){
+        toggleDownload(false);
       });
     }
 
