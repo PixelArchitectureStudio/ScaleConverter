@@ -211,6 +211,45 @@
       .footer-right{gap:6px}
       #dlBtn, #versionBtn{min-width:0}
     }
+
+    @media (max-width: 360px){
+      .wrap{margin:28px auto 16px; padding:14px 12px}
+      .card{padding:14px}
+      .topbar{gap:6px}
+      .topbar h1{font-size:18px}
+      h1{font-size:18px}
+      p.desc{font-size:13px; line-height:1.5}
+      .actions{gap:6px}
+      .lang-btn{height:26px; min-width:54px; padding:0 12px; font-size:11px}
+      .switch{width:48px; height:26px}
+      .switch .thumb{width:22px; height:22px}
+      .switch[data-mode="light"] .thumb{transform:translateX(22px)}
+      .switch .icon{font-size:11px}
+      .switch .icon.sun{left:6px}
+      .switch .icon.moon{right:6px}
+      .row{gap:8px}
+      .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.78fr) minmax(0,1fr); gap:8px}
+      label{font-size:10.5px}
+      select,input{padding:9px 9px; font-size:12.5px; border-radius:10px; min-height:36px}
+      select{background-position:6px center; background-size:11px 11px; padding-left:24px}
+      body.light select{background-position:6px center; background-size:11px 11px; padding-left:24px}
+      #scaleSelect, #scaleN{font-size:12.5px}
+      .grid{gap:12px}
+      .out{padding:14px; border-radius:12px}
+      .big{font-size:24px}
+      .copy{padding:6px 8px; font-size:12px}
+      #calcBtn{padding:10px 12px; font-size:13px}
+      .hint{font-size:11px}
+      .footer{font-size:11px}
+      .footer-bar{gap:6px}
+      .footer-left{gap:4px}
+      .footer-right{gap:6px}
+      .version{min-height:26px; padding:4px 8px; font-size:11px}
+      .ig-link{gap:4px; padding:4px 6px; font-size:11px}
+      .ig-link .handle{font-size:11px}
+      .ig-link .handle .mono.ltr{font-size:10px}
+      .dl-pop{left:58%; transform:translateX(-48%); width:min(200px, calc(100vw - 28px));}
+    }
       
     .footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
     @media (max-width: 520px) and (orientation: portrait){
