@@ -54,6 +54,7 @@
   <style>
     :root { --bg:#0f1320; --card:#161a2b; --muted:#8ea0b9; --text:#eef3ff; --accent:#7aa2ff; }
     *{box-sizing:border-box}
+    html{background-color:var(--bg);}
     body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);overflow-x:hidden;overflow-y:hidden;}
     .wrap{max-width:860px;margin:56px auto 48px;padding:24px}
     h1{font-size:22px;margin:0 0 16px}
@@ -104,7 +105,7 @@
     .switch[data-mode="light"] .thumb{transform:translateX(26px)}
 
     
-    body.light{background:linear-gradient(180deg,#ffffff,#f6f8ff);color:#0d1220}
+    body.light{background:linear-gradient(180deg,#ffffff,#f6f8ff);color:#0d1220;background-color:#f6f8ff}
     body.light .card{background:#ffffff;border-color:#e2e8f0;box-shadow:0 10px 30px rgba(0,0,0,.06)}
     body.light label{color:#56617a}
     body.light select, body.light input{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
@@ -650,6 +651,9 @@
     const footnote = el('footnote');
     const converterForm = el('converterForm');
     const bodyEl = document.body;
+    const rootEl = document.documentElement;
+    const DARK_BG = '#0f1320';
+    const LIGHT_BG = '#f6f8ff';
 
     const selectElements = Array.from(document.querySelectorAll('select'));
     const SCROLL_UNLOCK_BREAKPOINT = 520;
@@ -661,19 +665,46 @@
       const docEl = document.documentElement;
       const totalHeight = Math.max(bodyEl.scrollHeight, docEl ? docEl.scrollHeight : 0);
       const viewportHeight = window.innerHeight || (docEl ? docEl.clientHeight : 0);
-      return totalHeight > (viewportHeight + 1);
+      return Math.ceil(totalHeight) > Math.ceil(viewportHeight + 2);
+    }
+
+    function setBodyScrollState(unlocked){
+      if (!bodyEl || !rootEl) return;
+      if (unlocked){
+        if (!bodyEl.classList.contains('scroll-unlocked')){
+          bodyEl.classList.add('scroll-unlocked');
+        }
+        if (bodyEl.style.overflowY !== 'auto'){
+          bodyEl.style.overflowY = 'auto';
+        }
+        if (rootEl.style.overflowY !== 'auto'){
+          rootEl.style.overflowY = 'auto';
+        }
+      } else {
+        if (bodyEl.classList.contains('scroll-unlocked')){
+          bodyEl.classList.remove('scroll-unlocked');
+        }
+        if (bodyEl.scrollTop){
+          bodyEl.scrollTop = 0;
+        }
+        if (rootEl.scrollTop){
+          rootEl.scrollTop = 0;
+        }
+        if (bodyEl.style.overflowY !== 'hidden'){
+          bodyEl.style.overflowY = 'hidden';
+        }
+        if (rootEl.style.overflowY !== 'hidden'){
+          rootEl.style.overflowY = 'hidden';
+        }
+      }
     }
 
     function updateBodyScrollLock(){
-      if (!bodyEl) return;
+      if (!bodyEl || !rootEl) return;
       if (needsBodyScroll()){
-        if (!bodyEl.classList.contains('scroll-unlocked')){
-          bodyEl.style.overflowY = 'auto';
-          bodyEl.classList.add('scroll-unlocked');
-        }
-      } else if (bodyEl.classList.contains('scroll-unlocked')){
-        bodyEl.style.removeProperty('overflow-y');
-        bodyEl.classList.remove('scroll-unlocked');
+        setBodyScrollState(true);
+      } else {
+        setBodyScrollState(false);
       }
     }
 
@@ -697,11 +728,15 @@
     window.addEventListener('orientationchange', scheduleBodyScrollLockUpdate);
     window.addEventListener('load', updateBodyScrollLock);
     window.addEventListener('pagehide', () => {
-      if (!bodyEl) return;
-      bodyEl.style.removeProperty('overflow-y');
+      if (!bodyEl || !rootEl) return;
       bodyEl.classList.remove('scroll-unlocked');
+      bodyEl.style.overflowY = 'hidden';
+      rootEl.style.overflowY = 'hidden';
+      bodyEl.scrollTop = 0;
+      rootEl.scrollTop = 0;
     });
 
+    setBodyScrollState(false);
     updateBodyScrollLock();
     const locales = {
       fa: {
@@ -1046,6 +1081,9 @@
     function applyTheme(theme){
       if (theme === 'light') document.body.classList.add('light');
       else document.body.classList.remove('light');
+      if (rootEl){
+        rootEl.style.backgroundColor = theme === 'light' ? LIGHT_BG : DARK_BG;
+      }
       if (themeToggle){ const isLight = document.body.classList.contains('light'); themeToggle.setAttribute('data-mode', isLight ? 'light' : 'dark'); }
     }
 
