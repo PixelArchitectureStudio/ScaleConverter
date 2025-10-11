@@ -283,8 +283,11 @@
     .dl-anchor{position:relative;display:inline-block}
     .dl-pop{position:absolute; left:50%; transform:translateX(calc(-50% + 14px)); bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:240px; padding:8px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:95}
     .dl-pop.hidden{display:none}
-    .dl-item{display:flex; align-items:center; gap:8px; padding:8px; border-radius:8px; color:inherit; text-decoration:none}
+    .dl-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;color:inherit;text-decoration:none;width:100%;border:none;background:none;font:inherit;cursor:pointer;text-align:inherit;justify-content:flex-start}
+    .dl-item svg{flex-shrink:0}
+    .dl-item span{flex:1;text-align:inherit}
     .dl-item:hover{background:#141a33}
+    .dl-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     .dl-ic{width:16px;height:16px}
     .dl-emoji{font-size:16px;line-height:1}
     body.light .dl-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
@@ -458,6 +461,13 @@
                   </svg>
                   <span id="downloadWeb" data-i18n-key="downloadWeb">نسخه وب اپ</span>
                 </a>
+                <button type="button" id="dlShareBtn" class="dl-item" role="menuitem">
+                  <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15 3a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 11-2 0V5.41l-9.29 9.3a1 1 0 01-1.42-1.42L19.59 4H16a1 1 0 01-1-1z" fill="currentColor"/>
+                    <path d="M19 13a1 1 0 011 1v5a3 3 0 01-3 3H6a3 3 0 01-3-3V8a3 3 0 013-3h5a1 1 0 110 2H6a1 1 0 00-1 1v11a1 1 0 001 1h11a1 1 0 001-1v-5a1 1 0 011-1z" fill="currentColor"/>
+                  </svg>
+                  <span id="downloadShare" data-i18n-key="downloadShare">اشتراک‌گذاری لینک</span>
+                </button>
                 <a href="https://www.zoomit.ir/mobile-learning/20984-how-to-add-website-links/" target="_blank" rel="noopener" id="dlWebHelp" class="dl-item" role="menuitem">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
                     <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
@@ -497,6 +507,7 @@
   <script>
     const unitToMM = { mm:1, cm:10, m:1000, km:1000000, in:25.4, ft:304.8, yd:914.4, mi:1609344, nmi:1852000 };
     const APP_VERSION = '1.4';
+    const APP_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
     const el = (id) => document.getElementById(id);
 
     const realUnit = el('realUnit');
@@ -527,6 +538,8 @@
     const dlBtn = el('dlBtn');
     const dlPop = el('dlPop');
     const dlWin = el('dlWin');
+    const dlWebLink = el('dlWeb');
+    const dlShareBtn = el('dlShareBtn');
     const langToggle = el('langToggle');
     const langToggleText = el('langToggleText');
     const pageHeading = el('pageHeading');
@@ -541,6 +554,7 @@
     const downloadLabel = el('downloadLabel');
     const downloadWindows = el('downloadWindows');
     const downloadWeb = el('downloadWeb');
+    const downloadShare = el('downloadShare');
     const downloadWebHelp = el('downloadWebHelp');
     const versionTitle = el('versionTitle');
     const versionLabel = el('versionLabel');
@@ -558,6 +572,35 @@
       return /(DecSoft|AppBuilder|Cordova|Electron|NWJS)/i.test(ua);
     }
     const FORCE_SYSTEM_BROWSER = shouldOpenExternally();
+    function isStandalone(){
+      const mq = window.matchMedia ? window.matchMedia('(display-mode: standalone)') : null;
+      return (mq && mq.matches) || (typeof navigator !== 'undefined' && navigator.standalone);
+    }
+    function openLinkExternally(url, options = {}){
+      if (!url) return false;
+      const preferSystem = options.preferSystem !== undefined ? options.preferSystem : FORCE_SYSTEM_BROWSER;
+      const targets = [];
+      if (preferSystem && FORCE_SYSTEM_BROWSER) targets.push('_system');
+      targets.push('_blank');
+      for (let i = 0; i < targets.length; i++){
+        const target = targets[i];
+        try {
+          const win = window.open(url, target);
+          if (win){
+            if (typeof win.focus === 'function') win.focus();
+            return true;
+          }
+        } catch(err){
+          continue;
+        }
+      }
+      try {
+        window.location.href = url;
+        return true;
+      } catch(err){
+        return false;
+      }
+    }
     let scrollLockTimer = null;
     const locales = {
       fa: {
@@ -588,6 +631,11 @@
         downloadWindows: 'دانلود نسخه ویندوز',
         downloadWeb: 'نسخه وب اپ',
         downloadWebHelp: 'آموزش نصب نسخه وب اپ',
+        downloadShare: 'اشتراک‌گذاری لینک',
+        shareTitle: 'Scale Converter',
+        shareText: 'ابزار تبدیل مقیاس Pixel Studio',
+        shareCopied: 'لینک کپی شد. می‌توانید آن را در مرورگر به اشتراک بگذارید.',
+        shareFallback: 'در این دستگاه امکان اشتراک‌گذاری مستقیم نیست؛ لینک در مرورگر باز می‌شود.',
         versionTitle: 'نرم‌افزار تبدیل مقیاس',
         versionLabel: 'نسخه',
         versionChangesLabel: 'آخرین تغییرات',
@@ -649,6 +697,11 @@
         downloadWindows: 'Download Windows version',
         downloadWeb: 'Web app version',
         downloadWebHelp: 'Web app install guide',
+        downloadShare: 'Share app link',
+        shareTitle: 'Scale Converter',
+        shareText: 'Scale Converter web app',
+        shareCopied: 'Link copied. Share it from your browser.',
+        shareFallback: 'Sharing is not available here; the link will open in your browser.',
         versionTitle: 'Scale Converter App',
         versionLabel: 'Version',
         versionChangesLabel: 'Latest changes',
@@ -856,6 +909,7 @@
       if (downloadLabel) downloadLabel.textContent = locale.downloadLabel;
       if (downloadWindows) downloadWindows.textContent = locale.downloadWindows;
       if (downloadWeb) downloadWeb.textContent = locale.downloadWeb;
+      if (downloadShare) downloadShare.textContent = locale.downloadShare;
       if (downloadWebHelp) downloadWebHelp.textContent = locale.downloadWebHelp;
       if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
       if (dlPop) dlPop.setAttribute('aria-label', locale.downloadAria);
@@ -1040,22 +1094,48 @@
         if (FORCE_SYSTEM_BROWSER){
           e.preventDefault();
           const href = this.getAttribute('href');
-          let opened = null;
+          openLinkExternally(href, {preferSystem:true});
+        }
+        toggleDownload(false);
+      });
+    }
+    if (dlWebLink){
+      dlWebLink.addEventListener('click', function(e){
+        if (isStandalone()){
+          e.preventDefault();
+          const href = this.getAttribute('href') || APP_URL;
+          openLinkExternally(href, {preferSystem:true});
+        }
+        toggleDownload(false);
+      });
+    }
+    if (dlShareBtn){
+      dlShareBtn.addEventListener('click', async function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const locale = getLocale();
+        const shareData = { title: locale.shareTitle, text: locale.shareText, url: APP_URL };
+        let handled = false;
+        if (typeof navigator !== 'undefined' && navigator.share){
           try {
-            opened = window.open(href, '_system');
+            await navigator.share(shareData);
+            handled = true;
           } catch(err){
-            opened = null;
+            if (err && err.name === 'AbortError') handled = true;
           }
-          if (!opened){
-            try {
-              opened = window.open(href, this.getAttribute('target') || '_blank');
-            } catch(err){
-              opened = null;
-            }
+        }
+        if (!handled && typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext){
+          try {
+            await navigator.clipboard.writeText(APP_URL);
+            alert(locale.shareCopied);
+            handled = true;
+          } catch(err){
+            handled = false;
           }
-          if (!opened){
-            window.location.href = href;
-          }
+        }
+        if (!handled){
+          alert(locale.shareFallback);
+          openLinkExternally(APP_URL, {preferSystem:true});
         }
         toggleDownload(false);
       });
