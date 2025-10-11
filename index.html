@@ -51,16 +51,23 @@
   
   <meta name="twitter:site" content="@pixel_architecture_studio">
   <title>Scale Converter</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap">
+
   <style>
     :root { --bg:#0f1320; --card:#161a2b; --muted:#8ea0b9; --text:#eef3ff; --accent:#7aa2ff; }
     *{box-sizing:border-box}
-    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial; color:var(--text);}    
+    body{margin:0;background:radial-gradient(1200px 800px at 20% -10%, #1b2140 0%, var(--bg) 60%), var(--bg);min-height:100vh;font-family:"Vazirmatn", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color:var(--text);}
+    html.scroll-unlocked{height:auto;overflow-y:auto}
+    body.scroll-unlocked{height:auto;min-height:100svh;overflow:auto}
     .wrap{max-width:860px;margin:40px auto;padding:24px}
     h1{font-size:22px;margin:0 0 16px}
     p.desc{margin:0 0 22px;color:var(--muted)}
     .card{background:linear-gradient(180deg, #1a1f36, #121629);border:1px solid #2a2f47; padding:18px;border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
     .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+    html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.82fr) minmax(0,1fr)}
     label{display:block;font-size:12px;color:#aab8d8;margin:0 0 6px}
     select,input{width:100%;padding:12px 12px;border-radius:12px;border:1px solid #2b3152;background:#0f1326;color:var(--text);outline:none}
     input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0;}
@@ -92,6 +99,17 @@
     .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .actions{display:flex;align-items:center;gap:10px}
     .icon-btn{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:0;font-size:16px}
+    .news-anchor{position:relative;display:inline-flex}
+    .news-btn{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid #2b3152;background:#0f1326;color:var(--text);cursor:pointer;padding:0}
+    .news-btn:hover{filter:brightness(1.1)}
+    .news-btn svg{width:16px;height:16px}
+    .news-pop{position:absolute;inset-inline-end:0;top:calc(100% + 8px);background:#0f1326;border:1px solid #2b3152;border-radius:12px;min-width:200px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:85}
+    .news-pop.hidden{display:none}
+    .news-title{font-weight:700;margin:0 0 6px;font-size:13px}
+    .news-empty{margin:0;font-size:12px;color:#94a3c7}
+    body.light .news-btn{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+    body.light .news-pop{background:#ffffff;border-color:#cbd5e1;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+    body.light .news-empty{color:#64748b}
     .lang-btn{min-width:60px;position:relative;cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 14px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
     .lang-btn:hover{filter:brightness(1.1)}
     .lang-btn .lang-text{pointer-events:none}
@@ -177,20 +195,72 @@
       
     html, body{height:100%}
     body{min-height:100svh;height:100dvh;overflow:hidden}
-    @supports (height: 100dvh){ body{height:100dvh} }
+    @supports (height: 100dvh){ body{height:100dvh} body.scroll-unlocked{height:auto} }
       
     @media (max-width: 520px) and (orientation: portrait){
       .wrap{max-width:100%; margin:20px auto; padding:16px 18px; padding-left:max(18px, env(safe-area-inset-left, 0px)); padding-right:max(18px, env(safe-area-inset-right, 0px));}
-      
+
       .row-3{grid-template-columns: minmax(0,1fr) minmax(120px,0.7fr) minmax(0,1fr); gap:10px}
+      html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(120px,0.6fr) minmax(0,1fr)}
       label{font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
       
       select, input{min-height:40px; font-size:14px}
       select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px; text-overflow:ellipsis}
-      body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px}
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:28px; padding-right:10px}
       
       .row-3 > div:nth-child(2) .grid{gap:6px !important}
       #scaleSelect, #scaleN{font-size:14px}
+    }
+
+    @media (max-width: 420px){
+      .wrap{padding:14px 16px;}
+      .card{padding:16px;}
+      .row, .row-3{gap:10px;}
+      label{font-size:11px;}
+      select, input{padding:10px 10px; font-size:13px; min-height:38px;}
+      select{background-position:8px center; background-size:12px 12px; padding-left:26px; padding-right:10px;}
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:26px; padding-right:10px;}
+      #calcBtn{padding:10px 12px; font-size:14px;}
+      .copy{padding:7px 9px; font-size:13px;}
+      .version{padding:4px 8px; font-size:11px;}
+      .ig-link.version{max-width:170px;}
+      .dl-pop{width:min(232px, calc(100vw - 40px)); left:50%; transform:translateX(-50%);}
+    }
+
+    @media (max-width: 400px){
+      html[lang="en"] select,
+      html[lang="en"] input{font-size:12px;}
+      html[lang="en"] #scaleSelect,
+      html[lang="en"] #scaleN{font-size:12px;}
+      html[lang="en"] label{font-size:10.8px;}
+      html[lang="en"] #downloadLabel{font-size:11.5px;}
+    }
+
+    @media (max-width: 360px){
+      .wrap{padding:12px 14px;}
+      .card{padding:14px;}
+      .row, .row-3{gap:8px;}
+      select, input{padding:9px 9px; font-size:12.5px; min-height:36px;}
+      select{background-position:8px center; background-size:12px 12px; padding-left:24px; padding-right:9px;}
+      body.light select{background-position:8px center; background-size:12px 12px; padding-left:24px; padding-right:9px;}
+      #calcBtn{padding:10px; font-size:13px;}
+      .copy{padding:6px 8px; font-size:12.5px;}
+      #downloadLabel{font-size:12.5px;}
+      .footer-left, .footer-right{gap:6px;}
+      .ig-link.version{max-width:160px;}
+      .dl-pop{width:min(208px, calc(100vw - 36px));}
+    }
+
+    @media (max-width: 360px){
+      html[lang="en"] .row-3{grid-template-columns:minmax(0,1fr) minmax(0,0.55fr) minmax(0,1fr);}
+      html[lang="en"] select,
+      html[lang="en"] input{font-size:11.5px;}
+      html[lang="en"] #scaleSelect,
+      html[lang="en"] #scaleN{font-size:11.5px;}
+      html[lang="en"] label{font-size:10.5px;}
+      html[lang="en"] #downloadLabel{font-size:11px;}
+      html[lang="en"] .version{font-size:10.5px; padding:4px 6px;}
+      html[lang="en"] .copy{font-size:11.5px;}
     }
       
     .footer-left{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -222,10 +292,13 @@
       
     .footer-right{display:inline-flex;align-items:center;gap:8px}
     .dl-anchor{position:relative;display:inline-block}
-    .dl-pop{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:260px; padding:8px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:95}
+    .dl-pop{position:absolute; left:50%; transform:translateX(calc(-50% + 14px)); bottom:calc(100% + 8px); background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:240px; padding:8px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:95}
     .dl-pop.hidden{display:none}
-    .dl-item{display:flex; align-items:center; gap:8px; padding:8px; border-radius:8px; color:inherit; text-decoration:none}
+    .dl-item{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;color:inherit;text-decoration:none;width:100%;border:none;background:none;font:inherit;cursor:pointer;text-align:inherit;justify-content:flex-start}
+    .dl-item svg{flex-shrink:0}
+    .dl-item span{flex:1;text-align:inherit}
     .dl-item:hover{background:#141a33}
+    .dl-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
     .dl-ic{width:16px;height:16px}
     .dl-emoji{font-size:16px;line-height:1}
     body.light .dl-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
@@ -252,6 +325,15 @@
         <button id="langToggle" class="lang-btn" type="button" aria-label="تغییر زبان به انگلیسی" data-lang="fa">
           <span class="lang-text" id="langToggleText">فا</span>
         </button>
+        <span class="news-anchor">
+          <button id="newsBtn" class="news-btn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="اخبار" title="اخبار">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5a2 2 0 00-2 2v10a3 3 0 003 3h13a2 2 0 002-2V6a2 2 0 00-2-2H4zm14 12H5a1 1 0 01-1-1V7h14v10zm2 0a1 1 0 01-1 1h1v-1zM7 9h6v2H7V9zm0 4h3v2H7v-2z"/></svg>
+          </button>
+          <div id="newsPop" class="news-pop hidden" role="dialog" aria-label="اخبار">
+            <div class="news-title" id="newsTitle" data-i18n-key="newsTitle">اخبار</div>
+            <p class="news-empty" id="newsEmpty" data-i18n-key="newsEmpty">فعلاً خبری وجود ندارد.</p>
+          </div>
+        </span>
         <button id="themeToggle" class="switch" aria-label="تغییر حالت روشن/تاریک" data-mode="dark">
           <span class="icon sun" aria-hidden="true">☀️</span>
           <span class="icon moon" aria-hidden="true">🌙</span>
@@ -382,7 +464,7 @@
                 <span id="downloadLabel" data-i18n-key="downloadLabel">دانلود</span>
               </button>
               <div id="dlPop" class="dl-pop hidden" role="menu" aria-label="دانلود">
-                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.3/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem">
+                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem" target="_blank" rel="noopener">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
                     <rect x="13" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
@@ -399,6 +481,13 @@
                   </svg>
                   <span id="downloadWeb" data-i18n-key="downloadWeb">نسخه وب اپ</span>
                 </a>
+                <button type="button" id="dlShareBtn" class="dl-item" role="menuitem">
+                  <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15 3a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 11-2 0V5.41l-9.29 9.3a1 1 0 01-1.42-1.42L19.59 4H16a1 1 0 01-1-1z" fill="currentColor"/>
+                    <path d="M19 13a1 1 0 011 1v5a3 3 0 01-3 3H6a3 3 0 01-3-3V8a3 3 0 013-3h5a1 1 0 110 2H6a1 1 0 00-1 1v11a1 1 0 001 1h11a1 1 0 001-1v-5a1 1 0 011-1z" fill="currentColor"/>
+                  </svg>
+                  <span id="downloadShare" data-i18n-key="downloadShare">اشتراک‌گذاری لینک</span>
+                </button>
                 <a href="https://www.zoomit.ir/mobile-learning/20984-how-to-add-website-links/" target="_blank" rel="noopener" id="dlWebHelp" class="dl-item" role="menuitem">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
                     <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
@@ -437,7 +526,8 @@
 
   <script>
     const unitToMM = { mm:1, cm:10, m:1000, km:1000000, in:25.4, ft:304.8, yd:914.4, mi:1609344, nmi:1852000 };
-    const APP_VERSION = '1.3';
+    const APP_VERSION = '1.4';
+    const APP_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
     const el = (id) => document.getElementById(id);
 
     const realUnit = el('realUnit');
@@ -467,6 +557,13 @@
     const versionText = el('versionText');
     const dlBtn = el('dlBtn');
     const dlPop = el('dlPop');
+    const dlWin = el('dlWin');
+    const dlWebLink = el('dlWeb');
+    const dlShareBtn = el('dlShareBtn');
+    const newsBtn = el('newsBtn');
+    const newsPop = el('newsPop');
+    const newsTitle = el('newsTitle');
+    const newsEmpty = el('newsEmpty');
     const langToggle = el('langToggle');
     const langToggleText = el('langToggleText');
     const pageHeading = el('pageHeading');
@@ -481,6 +578,7 @@
     const downloadLabel = el('downloadLabel');
     const downloadWindows = el('downloadWindows');
     const downloadWeb = el('downloadWeb');
+    const downloadShare = el('downloadShare');
     const downloadWebHelp = el('downloadWebHelp');
     const versionTitle = el('versionTitle');
     const versionLabel = el('versionLabel');
@@ -489,6 +587,45 @@
     const versionHint = el('versionHint');
     const footnote = el('footnote');
     const converterForm = el('converterForm');
+    const wrapEl = document.querySelector('.wrap');
+    const SCROLL_UNLOCK_MAX_WIDTH = 520;
+    function shouldOpenExternally(){
+      const protocol = window.location && window.location.protocol;
+      if (protocol === 'file:' || protocol === 'app:' || protocol === 'app+https:' || protocol === 'app+http:' || protocol === 'ms-appx:' || protocol === 'ms-appx-web:') return true;
+      const ua = navigator && navigator.userAgent ? navigator.userAgent : '';
+      return /(DecSoft|AppBuilder|Cordova|Electron|NWJS)/i.test(ua);
+    }
+    const FORCE_SYSTEM_BROWSER = shouldOpenExternally();
+    function isStandalone(){
+      const mq = window.matchMedia ? window.matchMedia('(display-mode: standalone)') : null;
+      return (mq && mq.matches) || (typeof navigator !== 'undefined' && navigator.standalone);
+    }
+    function openLinkExternally(url, options = {}){
+      if (!url) return false;
+      const preferSystem = options.preferSystem !== undefined ? options.preferSystem : FORCE_SYSTEM_BROWSER;
+      const targets = [];
+      if (preferSystem && FORCE_SYSTEM_BROWSER) targets.push('_system');
+      targets.push('_blank');
+      for (let i = 0; i < targets.length; i++){
+        const target = targets[i];
+        try {
+          const win = window.open(url, target);
+          if (win){
+            if (typeof win.focus === 'function') win.focus();
+            return true;
+          }
+        } catch(err){
+          continue;
+        }
+      }
+      try {
+        window.location.href = url;
+        return true;
+      } catch(err){
+        return false;
+      }
+    }
+    let scrollLockTimer = null;
     const locales = {
       fa: {
         code: 'fa',
@@ -518,6 +655,14 @@
         downloadWindows: 'دانلود نسخه ویندوز',
         downloadWeb: 'نسخه وب اپ',
         downloadWebHelp: 'آموزش نصب نسخه وب اپ',
+        downloadShare: 'اشتراک‌گذاری لینک',
+        newsButtonLabel: 'نمایش اخبار',
+        newsTitle: 'اخبار',
+        newsEmpty: 'فعلاً خبری وجود ندارد.',
+        shareTitle: 'Scale Converter',
+        shareText: 'ابزار تبدیل مقیاس Pixel Studio',
+        shareCopied: 'لینک کپی شد. می‌توانید آن را در مرورگر به اشتراک بگذارید.',
+        shareFallback: 'در این دستگاه امکان اشتراک‌گذاری مستقیم نیست؛ لینک در مرورگر باز می‌شود.',
         versionTitle: 'نرم‌افزار تبدیل مقیاس',
         versionLabel: 'نسخه',
         versionChangesLabel: 'آخرین تغییرات',
@@ -579,6 +724,14 @@
         downloadWindows: 'Download Windows version',
         downloadWeb: 'Web app version',
         downloadWebHelp: 'Web app install guide',
+        downloadShare: 'Share app link',
+        newsButtonLabel: 'Open news',
+        newsTitle: 'News',
+        newsEmpty: 'There is no news yet.',
+        shareTitle: 'Scale Converter',
+        shareText: 'Scale Converter web app',
+        shareCopied: 'Link copied. Share it from your browser.',
+        shareFallback: 'Sharing is not available here; the link will open in your browser.',
         versionTitle: 'Scale Converter App',
         versionLabel: 'Version',
         versionChangesLabel: 'Latest changes',
@@ -696,6 +849,28 @@
       }
     }
 
+    function updateScrollLock(){
+      if (!wrapEl) return;
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const totalHeight = wrapEl.offsetTop + wrapEl.scrollHeight;
+      const needsScroll = totalHeight > (viewportHeight + 4);
+      const shouldUnlock = viewportWidth <= SCROLL_UNLOCK_MAX_WIDTH && needsScroll;
+      document.body.classList.toggle('scroll-unlocked', shouldUnlock);
+      document.documentElement.classList.toggle('scroll-unlocked', shouldUnlock);
+      if (!shouldUnlock){
+        window.scrollTo(0, 0);
+      }
+    }
+
+    function scheduleScrollLockUpdate(){
+      if (scrollLockTimer) clearTimeout(scrollLockTimer);
+      scrollLockTimer = setTimeout(() => {
+        scrollLockTimer = null;
+        updateScrollLock();
+      }, 60);
+    }
+
     function refreshDetailText(){
       if (!detail) return;
       const locale = getLocale();
@@ -764,11 +939,28 @@
       if (downloadLabel) downloadLabel.textContent = locale.downloadLabel;
       if (downloadWindows) downloadWindows.textContent = locale.downloadWindows;
       if (downloadWeb) downloadWeb.textContent = locale.downloadWeb;
+      if (downloadShare) downloadShare.textContent = locale.downloadShare;
       if (downloadWebHelp) downloadWebHelp.textContent = locale.downloadWebHelp;
       if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
       if (dlPop) dlPop.setAttribute('aria-label', locale.downloadAria);
-      if (converterForm) converterForm.setAttribute('aria-label', locale.formAriaLabel);
       const isEnglish = locale.code === 'en';
+      if (newsBtn){
+        newsBtn.setAttribute('aria-label', locale.newsButtonLabel);
+        newsBtn.setAttribute('title', locale.newsButtonLabel);
+      }
+      if (newsPop){
+        newsPop.setAttribute('aria-label', locale.newsTitle);
+        newsPop.classList.toggle('ltr', isEnglish);
+      }
+      if (newsTitle){
+        newsTitle.textContent = locale.newsTitle;
+        newsTitle.classList.toggle('ltr', isEnglish);
+      }
+      if (newsEmpty){
+        newsEmpty.textContent = locale.newsEmpty;
+        newsEmpty.classList.toggle('ltr', isEnglish);
+      }
+      if (converterForm) converterForm.setAttribute('aria-label', locale.formAriaLabel);
       if (versionTitle){
         versionTitle.textContent = locale.versionTitle;
         versionTitle.classList.toggle('ltr', isEnglish);
@@ -824,6 +1016,7 @@
       applyModeUI();
       updateHints();
       refreshDetailText();
+      scheduleScrollLockUpdate();
       renderHistory();
     }
 
@@ -892,7 +1085,7 @@
     realUnit.addEventListener('change', ()=>{ updateHints(); clearOutput(); });
     targetUnit.addEventListener('change', ()=>{ updateHints(); clearOutput(); });
     scaleSelect.addEventListener('change', ()=>{ clearOutput(); });
-    manualToggle.addEventListener('change', ()=>{ setManualUI(); updateHints(); clearOutput(); });
+    manualToggle.addEventListener('change', ()=>{ setManualUI(); updateHints(); clearOutput(); scheduleScrollLockUpdate(); });
     scaleN.addEventListener('input', clearOutput);
     realValue.addEventListener('input', clearOutput);
     // Pressing Enter in the real value input triggers calculation
@@ -934,14 +1127,72 @@
       }).join('');
     }
     function addToHistory(outText, meta){ if (!outText || outText==='—') return; const arr = readHistory(); if (arr.length && arr[0].out === outText) return; arr.unshift({out: outText, meta: meta||null, t: Date.now()}); writeHistory(arr); if (histPop && !histPop.classList.contains('hidden')) renderHistory(); lastSavedOut = outText; }
-    function closeOthers(except){ if (except!=='history') toggleHistory(false); if (except!=='version') toggleVersion(false); if (except!=='download') toggleDownload(false); }
+    function closeOthers(except){
+      if (except!=='history') toggleHistory(false);
+      if (except!=='version') toggleVersion(false);
+      if (except!=='download') toggleDownload(false);
+      if (except!=='news') toggleNews(false);
+    }
     function toggleHistory(show){ if (!histPop) return; const open = !histPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('history'); histPop.classList.remove('hidden'); renderHistory(); } else { histPop.classList.add('hidden'); } }
     if (histBtn){ histBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(); }); }
     if (histClose){ histClose.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(false); }); }
     function toggleVersion(show){ if (!verPop || !versionBtn) return; const open = !verPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('version'); verPop.classList.remove('hidden'); versionBtn.setAttribute('aria-expanded','true'); } else { verPop.classList.add('hidden'); versionBtn.setAttribute('aria-expanded','false'); } }
     if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
     function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
+    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); } }
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
+    if (newsBtn){ newsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(); }); }
+    if (dlWin){
+      dlWin.addEventListener('click', function(e){
+        if (FORCE_SYSTEM_BROWSER){
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          openLinkExternally(href, {preferSystem:true});
+        }
+        toggleDownload(false);
+      });
+    }
+    if (dlWebLink){
+      dlWebLink.addEventListener('click', function(e){
+        if (isStandalone()){
+          e.preventDefault();
+          const href = this.getAttribute('href') || APP_URL;
+          openLinkExternally(href, {preferSystem:true});
+        }
+        toggleDownload(false);
+      });
+    }
+    if (dlShareBtn){
+      dlShareBtn.addEventListener('click', async function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const locale = getLocale();
+        const shareData = { title: locale.shareTitle, text: locale.shareText, url: APP_URL };
+        let handled = false;
+        if (typeof navigator !== 'undefined' && navigator.share){
+          try {
+            await navigator.share(shareData);
+            handled = true;
+          } catch(err){
+            if (err && err.name === 'AbortError') handled = true;
+          }
+        }
+        if (!handled && typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext){
+          try {
+            await navigator.clipboard.writeText(APP_URL);
+            alert(locale.shareCopied);
+            handled = true;
+          } catch(err){
+            handled = false;
+          }
+        }
+        if (!handled){
+          alert(locale.shareFallback);
+          openLinkExternally(APP_URL, {preferSystem:true});
+        }
+        toggleDownload(false);
+      });
+    }
 
     // FIX: remove stray "$1" and properly handle outside-click to close popovers
     document.addEventListener('click', function(e){
@@ -957,9 +1208,16 @@
       if (verPop && !verPop.classList.contains('hidden')){
         if (!(verPop.contains(e.target) || (versionBtn && versionBtn.contains(e.target)))) toggleVersion(false);
       }
+      // Close news popover if click is outside
+      if (newsPop && !newsPop.classList.contains('hidden')){
+        if (!(newsPop.contains(e.target) || (newsBtn && newsBtn.contains(e.target)))) toggleNews(false);
+      }
     });
 
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ toggleHistory(false); toggleVersion(false); toggleDownload(false); } });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ toggleHistory(false); toggleVersion(false); toggleDownload(false); toggleNews(false); } });
+
+    window.addEventListener('resize', scheduleScrollLockUpdate);
+    window.addEventListener('orientationchange', scheduleScrollLockUpdate);
 
     function applyModeUI(){
       if (!inputLabel || !outputLabel) return;
@@ -987,6 +1245,7 @@
     setManualUI();
     updateHints();
     clearOutput();
+    scheduleScrollLockUpdate();
 
     // ===== Console self-tests (compact) =====
     (function(){
