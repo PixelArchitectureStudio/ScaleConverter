@@ -1,15 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7aa2ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-labelledby="title">
   <title>News icon</title>
-  <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#5c2aff"/>
-      <stop offset="100%" stop-color="#a855f7"/>
-    </linearGradient>
-  </defs>
-  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#g)"/>
-  <rect x="14" y="16" width="36" height="6" rx="3" fill="rgba(255,255,255,0.75)"/>
-  <rect x="14" y="26" width="22" height="6" rx="3" fill="rgba(255,255,255,0.85)"/>
-  <rect x="14" y="36" width="28" height="6" rx="3" fill="rgba(255,255,255,0.65)"/>
-  <rect x="14" y="46" width="18" height="6" rx="3" fill="rgba(255,255,255,0.5)"/>
-  <path d="M42 31l8-7v18l-8-7v-4z" fill="#f1f5ff"/>
+  <rect x="4.25" y="5.5" width="13.5" height="12.5" rx="1.6" ry="1.6" />
+  <path d="M18.75 7.5h.75c.97 0 1.75.78 1.75 1.75v7c0 1.1-.9 2-2 2H18" />
+  <path d="M7.5 9.75h4.5" />
+  <path d="M7.5 12.25h6.5" />
+  <path d="M7.5 14.75h6.5" />
+  <path d="M15.75 9.75h1.5" />
+  <path d="M15.75 12.25h1.5" />
+  <path d="M15.75 14.75h1.5" />
 </svg>
