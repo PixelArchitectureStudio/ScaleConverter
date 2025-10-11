@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7aa2ff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-labelledby="title">
+  <title>News icon</title>
+  <rect x="4.25" y="5.5" width="13.5" height="12.5" rx="1.6" ry="1.6" />
+  <path d="M18.75 7.5h.75c.97 0 1.75.78 1.75 1.75v7c0 1.1-.9 2-2 2H18" />
+  <path d="M7.5 9.75h4.5" />
+  <path d="M7.5 12.25h6.5" />
+  <path d="M7.5 14.75h6.5" />
+  <path d="M15.75 9.75h1.5" />
+  <path d="M15.75 12.25h1.5" />
+  <path d="M15.75 14.75h1.5" />
+</svg>
