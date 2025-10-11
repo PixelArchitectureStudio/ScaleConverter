@@ -99,6 +99,22 @@
     .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .actions{display:flex;align-items:center;gap:10px}
     .icon-btn{width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:0;font-size:16px}
+    .news-anchor{position:relative;display:inline-flex;align-items:center}
+    .news-btn{cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:10px;width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+    .news-btn:hover{filter:brightness(1.1)}
+    .news-icon{width:18px;height:18px;display:block}
+    .news-pop{position:absolute;top:calc(50% + 16px);left:calc(100% + 12px);right:auto;transform:translateY(-50%);background:#0f1326;border:1px solid #2b3152;border-radius:12px;width:220px;max-width:min(240px,calc(100vw - 48px));padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:90}
+    .news-pop.hidden{display:none}
+    .news-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#94a3c7}
+    .news-title{font-weight:600;letter-spacing:.02em}
+    .news-close{background:none;border:none;color:inherit;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px}
+    .news-close:hover{background:rgba(122,162,255,0.12)}
+    .news-body{font-size:13px;color:var(--text);white-space:pre-line}
+
+    @media (max-width:680px){
+      .news-anchor{position:static}
+      .news-pop{top:calc(100% + 8px);left:50%;transform:translate(-50%,0);right:auto}
+    }
     .lang-btn{min-width:60px;position:relative;cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 14px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
     .lang-btn:hover{filter:brightness(1.1)}
     .lang-btn .lang-text{pointer-events:none}
@@ -123,6 +139,11 @@
     body.light .ig-link:hover{border-color:#3b82f6}
     body.light .switch{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
     body.light .lang-btn{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+    body.light .news-btn{background:#ffffff;border-color:#cbd5e1;color:#0d1220}
+    body.light .news-pop{background:#ffffff;border-color:#cbd5e1;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+    body.light .news-head{color:#64748b}
+    body.light .news-body{color:#0d1220}
+    body.light .news-close:hover{background:rgba(122,162,255,0.16)}
 
     
     .hist-pop{position:absolute; right:12px; top:100%; margin-top:8px; background:#0f1326; border:1px solid #2b3152; border-radius:12px; width:260px; padding:10px; box-shadow:0 10px 30px rgba(0,0,0,.35); z-index:70}
@@ -314,6 +335,19 @@
         <button id="langToggle" class="lang-btn" type="button" aria-label="تغییر زبان به انگلیسی" data-lang="fa">
           <span class="lang-text" id="langToggleText">فا</span>
         </button>
+        <div class="news-anchor">
+          <button id="newsBtn" class="icon-btn news-btn" type="button" aria-haspopup="dialog" aria-expanded="false" title="News">
+            <img src="news-icon.svg" alt="" class="news-icon" aria-hidden="true" />
+          </button>
+          <div id="newsPop" class="news-pop hidden" role="dialog" aria-label="News">
+            <div class="news-head">
+              <span id="newsTitle" class="news-title">News</span>
+              <button type="button" id="newsClose" class="news-close" aria-label="Close news">×</button>
+            </div>
+            <div id="newsBody" class="news-body">No news available right now.
+Check back later for updates.</div>
+          </div>
+        </div>
         <button id="themeToggle" class="switch" aria-label="تغییر حالت روشن/تاریک" data-mode="dark">
           <span class="icon sun" aria-hidden="true">☀️</span>
           <span class="icon moon" aria-hidden="true">🌙</span>
@@ -531,6 +565,11 @@
     const histPop = el('histPop');
     const histList = el('histList');
     const histClose = el('histClose');
+    const newsBtn = el('newsBtn');
+    const newsPop = el('newsPop');
+    const newsTitle = el('newsTitle');
+    const newsBody = el('newsBody');
+    const newsClose = el('newsClose');
     const calcBtn = el('calcBtn');
     const versionBtn = el('versionBtn');
     const verPop = el('verPop');
@@ -623,6 +662,11 @@
         copyButtonTitle: 'کپی مقدار',
         histButtonTitle: 'تاریخچه ۱۰ مقدار اخیر',
         swapButtonTitle: 'تبدیل جهت (نقشه ↔ واقعی)',
+        newsButtonTitle: 'خبرها',
+        newsDialogLabel: 'خبرهای جدید',
+        newsHeading: 'خبرها',
+        newsCloseLabel: 'بستن خبرها',
+        newsEmpty: 'در حال حاضر خبری در دسترس نیست.\nبرای به‌روزرسانی‌ها بعداً سر بزنید.',
         detailHeading: 'جزئیات مبدل:',
         footerCredit: 'ساخته شده توسط <strong>Pixel Studio</strong>',
         downloadLabel: 'دانلود',
@@ -689,6 +733,11 @@
         copyButtonTitle: 'Copy value',
         histButtonTitle: 'History (last 10 values)',
         swapButtonTitle: 'Swap direction (map ↔ real)',
+        newsButtonTitle: 'Latest news',
+        newsDialogLabel: 'News updates',
+        newsHeading: 'News',
+        newsCloseLabel: 'Close news',
+        newsEmpty: 'No news available right now.\nCheck back later for updates.',
         detailHeading: 'Converter details:',
         footerCredit: 'Built by <strong>Pixel Studio</strong>',
         downloadLabel: 'Download',
@@ -911,6 +960,14 @@
       if (downloadWeb) downloadWeb.textContent = locale.downloadWeb;
       if (downloadShare) downloadShare.textContent = locale.downloadShare;
       if (downloadWebHelp) downloadWebHelp.textContent = locale.downloadWebHelp;
+      if (newsBtn){
+        newsBtn.setAttribute('title', locale.newsButtonTitle);
+        newsBtn.setAttribute('aria-label', locale.newsButtonTitle);
+      }
+      if (newsPop) newsPop.setAttribute('aria-label', locale.newsDialogLabel);
+      if (newsTitle) newsTitle.textContent = locale.newsHeading;
+      if (newsBody) newsBody.textContent = locale.newsEmpty;
+      if (newsClose) newsClose.setAttribute('aria-label', locale.newsCloseLabel);
       if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
       if (dlPop) dlPop.setAttribute('aria-label', locale.downloadAria);
       if (converterForm) converterForm.setAttribute('aria-label', locale.formAriaLabel);
@@ -1081,13 +1138,16 @@
       }).join('');
     }
     function addToHistory(outText, meta){ if (!outText || outText==='—') return; const arr = readHistory(); if (arr.length && arr[0].out === outText) return; arr.unshift({out: outText, meta: meta||null, t: Date.now()}); writeHistory(arr); if (histPop && !histPop.classList.contains('hidden')) renderHistory(); lastSavedOut = outText; }
-    function closeOthers(except){ if (except!=='history') toggleHistory(false); if (except!=='version') toggleVersion(false); if (except!=='download') toggleDownload(false); }
+    function closeOthers(except){ if (except!=='history') toggleHistory(false); if (except!=='version') toggleVersion(false); if (except!=='download') toggleDownload(false); if (except!=='news') toggleNews(false); }
     function toggleHistory(show){ if (!histPop) return; const open = !histPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('history'); histPop.classList.remove('hidden'); renderHistory(); } else { histPop.classList.add('hidden'); } }
     if (histBtn){ histBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(); }); }
     if (histClose){ histClose.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(false); }); }
     function toggleVersion(show){ if (!verPop || !versionBtn) return; const open = !verPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('version'); verPop.classList.remove('hidden'); versionBtn.setAttribute('aria-expanded','true'); } else { verPop.classList.add('hidden'); versionBtn.setAttribute('aria-expanded','false'); } }
     if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
     function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
+    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); } }
+    if (newsBtn){ newsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(); }); }
+    if (newsClose){ newsClose.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(false); }); }
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
     if (dlWin){
       dlWin.addEventListener('click', function(e){
@@ -1155,9 +1215,13 @@
       if (verPop && !verPop.classList.contains('hidden')){
         if (!(verPop.contains(e.target) || (versionBtn && versionBtn.contains(e.target)))) toggleVersion(false);
       }
+      // Close news popover if click is outside
+      if (newsPop && !newsPop.classList.contains('hidden')){
+        if (!(newsPop.contains(e.target) || (newsBtn && newsBtn.contains(e.target)))) toggleNews(false);
+      }
     });
 
-    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ toggleHistory(false); toggleVersion(false); toggleDownload(false); } });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape'){ toggleHistory(false); toggleVersion(false); toggleDownload(false); toggleNews(false); } });
 
     window.addEventListener('resize', scheduleScrollLockUpdate);
     window.addEventListener('orientationchange', scheduleScrollLockUpdate);
