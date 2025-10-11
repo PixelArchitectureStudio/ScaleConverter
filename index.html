@@ -103,7 +103,7 @@
     .news-btn{cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:10px;width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center}
     .news-btn:hover{filter:brightness(1.1)}
     .news-icon{width:18px;height:18px;display:block}
-    .news-pop{position:absolute;top:calc(50% + 16px);left:calc(100% + 12px);right:auto;transform:translateY(-50%);background:#0f1326;border:1px solid #2b3152;border-radius:12px;width:220px;max-width:min(240px,calc(100vw - 48px));padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:90}
+    .news-pop{position:fixed;top:0;left:0;transform:none;background:#0f1326;border:1px solid #2b3152;border-radius:12px;width:240px;max-width:min(320px,calc(100vw - 48px));padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.35);z-index:90}
     .news-pop.hidden{display:none}
     .news-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12px;color:#94a3c7}
     .news-title{font-weight:600;letter-spacing:.02em}
@@ -112,8 +112,7 @@
     .news-body{font-size:13px;color:var(--text);white-space:pre-line}
 
     @media (max-width:680px){
-      .news-anchor{position:relative}
-      .news-pop{top:calc(100% + 8px);left:50%;transform:translate(-50%,0);right:auto}
+      .news-pop{width:90%;max-width:calc(100vw - 48px)}
     }
     .lang-btn{min-width:60px;position:relative;cursor:pointer;border:1px solid #2b3152;background:#0f1326;color:var(--text);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;height:28px;padding:0 14px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
     .lang-btn:hover{filter:brightness(1.1)}
@@ -1154,9 +1153,44 @@ Check back later for updates.</div>
     function toggleVersion(show){ if (!verPop || !versionBtn) return; const open = !verPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('version'); verPop.classList.remove('hidden'); versionBtn.setAttribute('aria-expanded','true'); } else { verPop.classList.add('hidden'); versionBtn.setAttribute('aria-expanded','false'); } }
     if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
     function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
-    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); } }
+    function positionNewsPopover(){
+      if (!newsPop || !newsBtn || newsPop.classList.contains('hidden')) return;
+      const gapX = 12;
+      const gapY = 12;
+      const padding = 16;
+      const btnRect = newsBtn.getBoundingClientRect();
+      const popRect = newsPop.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      let left = btnRect.right + gapX;
+      let top = btnRect.bottom + gapY;
+
+      if (left + popRect.width + padding > vw){
+        left = btnRect.left - gapX - popRect.width;
+      }
+      if (left < padding){
+        left = Math.max(padding, Math.min(vw - popRect.width - padding, btnRect.left + btnRect.width - popRect.width));
+      }
+
+      if (top + popRect.height + padding > vh){
+        top = btnRect.top - gapY - popRect.height;
+      }
+      if (top < padding){
+        top = Math.max(padding, Math.min(vh - popRect.height - padding, btnRect.bottom - popRect.height));
+      }
+
+      newsPop.style.left = `${Math.max(padding, Math.min(left, vw - popRect.width - padding))}px`;
+      newsPop.style.top = `${Math.max(padding, Math.min(top, vh - popRect.height - padding))}px`;
+      newsPop.style.right = 'auto';
+      newsPop.style.transform = 'none';
+    }
+    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); requestAnimationFrame(positionNewsPopover); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); newsPop.style.top=''; newsPop.style.left=''; newsPop.style.right=''; newsPop.style.transform=''; } }
     if (newsBtn){ newsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(); }); }
     if (newsClose){ newsClose.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(false); }); }
+    window.addEventListener('resize', positionNewsPopover);
+    window.addEventListener('orientationchange', positionNewsPopover);
+    window.addEventListener('scroll', positionNewsPopover, true);
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
     if (dlWin){
       dlWin.addEventListener('click', function(e){
