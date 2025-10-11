@@ -1209,17 +1209,20 @@ Check back later for updates.</div>
       newsPop.style.transform = 'none';
     }
     async function ensureNewsContent(){
-      if (!newsBody || newsContentOverride) return Promise.resolve();
+      if (!newsBody) return Promise.resolve();
       const locale = getLocale();
       if (newsFetchPromise){
         setNewsBody(locale.newsLoading, true);
+        requestAnimationFrame(positionNewsPopover);
         return newsFetchPromise;
       }
       if (typeof fetch !== 'function'){
         setNewsBody(locale.newsEmpty, false);
+        requestAnimationFrame(positionNewsPopover);
         return Promise.resolve();
       }
       setNewsBody(locale.newsLoading, true);
+      requestAnimationFrame(positionNewsPopover);
       const cacheBuster = Date.now().toString(36);
       newsFetchPromise = fetch(`${NEWS_SOURCE}?v=${cacheBuster}`, { cache: 'no-store' })
         .then(async function(res){
@@ -1236,21 +1239,27 @@ Check back later for updates.</div>
             newsContentOverride = content;
             setNewsBody(content, false);
           } else {
+            newsContentOverride = null;
             setNewsBody(activeLocale.newsEmpty, false);
           }
           requestAnimationFrame(positionNewsPopover);
         })
         .catch(function(err){
           console.warn(err);
-          setNewsBody(getLocale().newsEmpty, false);
+          const activeLocale = getLocale();
+          if (newsContentOverride){
+            setNewsBody(newsContentOverride, false);
+          } else {
+            setNewsBody(activeLocale.newsEmpty, false);
+          }
           requestAnimationFrame(positionNewsPopover);
         })
         .finally(function(){
-          if (!newsContentOverride) newsFetchPromise = null;
+          newsFetchPromise = null;
         });
       return newsFetchPromise;
     }
-    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); ensureNewsContent().finally(function(){ requestAnimationFrame(positionNewsPopover); }); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); newsPop.style.top=''; newsPop.style.left=''; newsPop.style.right=''; newsPop.style.transform=''; } }
+    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); positionNewsPopover(); ensureNewsContent().finally(function(){ requestAnimationFrame(positionNewsPopover); }); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); newsPop.style.top=''; newsPop.style.left=''; newsPop.style.right=''; newsPop.style.transform=''; } }
     if (newsBtn){ newsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(); }); }
     if (newsClose){ newsClose.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(false); }); }
     window.addEventListener('resize', positionNewsPopover);
