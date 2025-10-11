@@ -578,6 +578,9 @@ Check back later for updates.</div>
     const newsTitle = el('newsTitle');
     const newsBody = el('newsBody');
     const newsClose = el('newsClose');
+    const NEWS_SOURCE = 'news.txt';
+    let newsContentOverride = null;
+    let newsFetchPromise = null;
     const calcBtn = el('calcBtn');
     const versionBtn = el('versionBtn');
     const verPop = el('verPop');
@@ -974,7 +977,10 @@ Check back later for updates.</div>
       }
       if (newsPop) newsPop.setAttribute('aria-label', locale.newsDialogLabel);
       if (newsTitle) newsTitle.textContent = locale.newsHeading;
-      if (newsBody) newsBody.textContent = locale.newsEmpty;
+      if (newsBody){
+        newsBody.textContent = locale.newsEmpty;
+        if (newsContentOverride) newsBody.textContent = newsContentOverride;
+      }
       if (newsClose) newsClose.setAttribute('aria-label', locale.newsCloseLabel);
       if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
       if (dlPop) dlPop.setAttribute('aria-label', locale.downloadAria);
@@ -1185,7 +1191,36 @@ Check back later for updates.</div>
       newsPop.style.right = 'auto';
       newsPop.style.transform = 'none';
     }
-    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); requestAnimationFrame(positionNewsPopover); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); newsPop.style.top=''; newsPop.style.left=''; newsPop.style.right=''; newsPop.style.transform=''; } }
+    async function ensureNewsContent(){
+      if (!newsBody || newsContentOverride) return Promise.resolve();
+      if (newsFetchPromise) return newsFetchPromise;
+      if (typeof fetch !== 'function') return Promise.resolve();
+      const cacheBuster = Date.now().toString(36);
+      newsFetchPromise = fetch(`${NEWS_SOURCE}?v=${cacheBuster}`, { cache: 'no-store' })
+        .then(async function(res){
+          if (!res.ok){
+            if (res.status === 404) return null;
+            throw new Error(`News fetch failed: ${res.status}`);
+          }
+          const text = (await res.text()).replace(/\r\n/g, '\n').trim();
+          return text.length ? text : null;
+        })
+        .then(function(content){
+          if (content){
+            newsContentOverride = content;
+            newsBody.textContent = content;
+            requestAnimationFrame(positionNewsPopover);
+          }
+        })
+        .catch(function(err){
+          console.warn(err);
+        })
+        .finally(function(){
+          if (!newsContentOverride) newsFetchPromise = null;
+        });
+      return newsFetchPromise;
+    }
+    function toggleNews(show){ if (!newsPop || !newsBtn) return; const open = !newsPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('news'); newsPop.classList.remove('hidden'); newsBtn.setAttribute('aria-expanded','true'); ensureNewsContent().finally(function(){ requestAnimationFrame(positionNewsPopover); }); } else { newsPop.classList.add('hidden'); newsBtn.setAttribute('aria-expanded','false'); newsPop.style.top=''; newsPop.style.left=''; newsPop.style.right=''; newsPop.style.transform=''; } }
     if (newsBtn){ newsBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(); }); }
     if (newsClose){ newsClose.addEventListener('click', function(e){ e.stopPropagation(); toggleNews(false); }); }
     window.addEventListener('resize', positionNewsPopover);
