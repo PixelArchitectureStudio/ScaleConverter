@@ -110,6 +110,9 @@
     .news-close{background:none;border:none;color:inherit;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;display:inline-flex;align-items:center;justify-content:center;border-radius:6px}
     .news-close:hover{background:rgba(122,162,255,0.12)}
     .news-body{font-size:13px;color:var(--text);white-space:pre-line}
+    .news-body.loading{display:flex;align-items:center;gap:8px;color:var(--muted)}
+    .news-body.loading::before{content:'';width:12px;height:12px;border-radius:50%;border:2px solid currentColor;border-top-color:var(--accent);animation:news-spin .8s linear infinite;flex-shrink:0}
+    @keyframes news-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
     @media (max-width:680px){
       .news-pop{width:90%;max-width:calc(100vw - 48px)}
@@ -142,6 +145,7 @@
     body.light .news-pop{background:#ffffff;border-color:#cbd5e1;box-shadow:0 10px 30px rgba(0,0,0,.12)}
     body.light .news-head{color:#64748b}
     body.light .news-body{color:#0d1220}
+    body.light .news-body.loading{color:#64748b}
     body.light .news-close:hover{background:rgba(122,162,255,0.16)}
 
     
@@ -581,6 +585,12 @@ Check back later for updates.</div>
     const NEWS_SOURCE = 'news.txt';
     let newsContentOverride = null;
     let newsFetchPromise = null;
+
+    function setNewsBody(text, isLoading){
+      if (!newsBody) return;
+      newsBody.textContent = typeof text === 'string' ? text : '';
+      newsBody.classList.toggle('loading', !!isLoading);
+    }
     const calcBtn = el('calcBtn');
     const versionBtn = el('versionBtn');
     const verPop = el('verPop');
@@ -677,6 +687,7 @@ Check back later for updates.</div>
         newsDialogLabel: 'خبرهای جدید',
         newsHeading: 'خبرها',
         newsCloseLabel: 'بستن خبرها',
+        newsLoading: 'در حال بارگذاری خبرها…',
         newsEmpty: 'در حال حاضر خبری در دسترس نیست.\nبرای به‌روزرسانی‌ها بعداً سر بزنید.',
         detailHeading: 'جزئیات مبدل:',
         footerCredit: 'ساخته شده توسط <strong>Pixel Studio</strong>',
@@ -748,6 +759,7 @@ Check back later for updates.</div>
         newsDialogLabel: 'News updates',
         newsHeading: 'News',
         newsCloseLabel: 'Close news',
+        newsLoading: 'Loading news…',
         newsEmpty: 'No news available right now.\nCheck back later for updates.',
         detailHeading: 'Converter details:',
         footerCredit: 'Built by <strong>Pixel Studio</strong>',
@@ -978,8 +990,13 @@ Check back later for updates.</div>
       if (newsPop) newsPop.setAttribute('aria-label', locale.newsDialogLabel);
       if (newsTitle) newsTitle.textContent = locale.newsHeading;
       if (newsBody){
-        newsBody.textContent = locale.newsEmpty;
-        if (newsContentOverride) newsBody.textContent = newsContentOverride;
+        if (newsContentOverride){
+          setNewsBody(newsContentOverride, false);
+        } else if (newsFetchPromise){
+          setNewsBody(locale.newsLoading, true);
+        } else {
+          setNewsBody(locale.newsEmpty, false);
+        }
       }
       if (newsClose) newsClose.setAttribute('aria-label', locale.newsCloseLabel);
       if (dlBtn) dlBtn.setAttribute('title', locale.downloadTitle);
@@ -1193,8 +1210,16 @@ Check back later for updates.</div>
     }
     async function ensureNewsContent(){
       if (!newsBody || newsContentOverride) return Promise.resolve();
-      if (newsFetchPromise) return newsFetchPromise;
-      if (typeof fetch !== 'function') return Promise.resolve();
+      const locale = getLocale();
+      if (newsFetchPromise){
+        setNewsBody(locale.newsLoading, true);
+        return newsFetchPromise;
+      }
+      if (typeof fetch !== 'function'){
+        setNewsBody(locale.newsEmpty, false);
+        return Promise.resolve();
+      }
+      setNewsBody(locale.newsLoading, true);
       const cacheBuster = Date.now().toString(36);
       newsFetchPromise = fetch(`${NEWS_SOURCE}?v=${cacheBuster}`, { cache: 'no-store' })
         .then(async function(res){
@@ -1206,14 +1231,19 @@ Check back later for updates.</div>
           return text.length ? text : null;
         })
         .then(function(content){
+          const activeLocale = getLocale();
           if (content){
             newsContentOverride = content;
-            newsBody.textContent = content;
-            requestAnimationFrame(positionNewsPopover);
+            setNewsBody(content, false);
+          } else {
+            setNewsBody(activeLocale.newsEmpty, false);
           }
+          requestAnimationFrame(positionNewsPopover);
         })
         .catch(function(err){
           console.warn(err);
+          setNewsBody(getLocale().newsEmpty, false);
+          requestAnimationFrame(positionNewsPopover);
         })
         .finally(function(){
           if (!newsContentOverride) newsFetchPromise = null;
