@@ -603,11 +603,46 @@ Check back later for updates.</div>
     const dlPop = el('dlPop');
     const dlWin = el('dlWin');
     const WINDOWS_LINK_SOURCES = [
-      'https://github.com/PixelArchitectureStudio/ScaleConverter/blob/main/windows.txt?raw=1',
+      'https://raw.githubusercontent.com/PixelArchitectureStudio/ScaleConverter/main/windows.txt',
       'windows.txt'
     ];
     let windowsLinkOverride = null;
     let windowsFetchPromise = null;
+    function normalizeRemoteTextSource(src){
+      if (!src || typeof src !== 'string') return src;
+      const trimmed = src.trim();
+      if (!trimmed) return trimmed;
+      if (!/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmed)){
+        return trimmed;
+      }
+      try {
+        const parsed = new URL(trimmed);
+        const host = parsed.hostname.toLowerCase();
+        if (host === 'github.com'){
+          const segments = parsed.pathname.split('/').filter(Boolean);
+          const blobIndex = segments.indexOf('blob');
+          if (blobIndex !== -1){
+            const rawSegments = segments.slice(0, blobIndex).concat(segments.slice(blobIndex + 1));
+            const params = new URLSearchParams(parsed.search);
+            params.delete('raw');
+            const query = params.toString();
+            const rawUrl = `https://raw.githubusercontent.com/${rawSegments.join('/')}`;
+            return query ? `${rawUrl}?${query}` : rawUrl;
+          }
+        }
+        if (host === 'raw.githubusercontent.com'){
+          const params = new URLSearchParams(parsed.search);
+          if (params.has('raw')){
+            params.delete('raw');
+            const query = params.toString();
+            return `${parsed.origin}${parsed.pathname}${query ? `?${query}` : ''}`;
+          }
+        }
+        return parsed.toString();
+      } catch(err){
+        return trimmed;
+      }
+    }
     const dlWebLink = el('dlWeb');
     const dlShareBtn = el('dlShareBtn');
     const langToggle = el('langToggle');
@@ -1202,8 +1237,10 @@ Check back later for updates.</div>
       function fetchWindowsFromSource(index){
         if (index >= WINDOWS_LINK_SOURCES.length) return Promise.reject(new Error('Windows link unavailable'));
         const src = WINDOWS_LINK_SOURCES[index];
-        const separator = src.includes('?') ? '&' : '?';
-        return fetch(`${src}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+        const normalizedSrc = normalizeRemoteTextSource(src) || src;
+        const urlToFetch = typeof normalizedSrc === 'string' ? normalizedSrc : String(normalizedSrc || '');
+        const separator = urlToFetch.includes('?') ? '&' : '?';
+        return fetch(`${urlToFetch}${separator}v=${cacheBuster}`, { cache: 'no-store' })
           .then(async function(res){
             if (!res.ok){
               const error = new Error(`Windows link fetch failed: ${res.status}`);
@@ -1297,8 +1334,10 @@ Check back later for updates.</div>
       function fetchFromSource(index){
         if (index >= NEWS_SOURCES.length) return Promise.reject(new Error('News unavailable'));
         const src = NEWS_SOURCES[index];
-        const separator = src.includes('?') ? '&' : '?';
-        return fetch(`${src}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+        const normalizedSrc = normalizeRemoteTextSource(src) || src;
+        const urlToFetch = typeof normalizedSrc === 'string' ? normalizedSrc : String(normalizedSrc || '');
+        const separator = urlToFetch.includes('?') ? '&' : '?';
+        return fetch(`${urlToFetch}${separator}v=${cacheBuster}`, { cache: 'no-store' })
           .then(async function(res){
             if (!res.ok){
               const error = new Error(`News fetch failed: ${res.status}`);
