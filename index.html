@@ -582,7 +582,10 @@ Check back later for updates.</div>
     const newsTitle = el('newsTitle');
     const newsBody = el('newsBody');
     const newsClose = el('newsClose');
-    const NEWS_SOURCE = 'news.txt';
+    const NEWS_SOURCES = [
+      'https://raw.githubusercontent.com/PixelArchitectureStudio/ScaleConverter/main/news.txt',
+      'news.txt'
+    ];
     let newsContentOverride = null;
     let newsFetchPromise = null;
 
@@ -1224,29 +1227,43 @@ Check back later for updates.</div>
       setNewsBody(locale.newsLoading, true);
       requestAnimationFrame(positionNewsPopover);
       const cacheBuster = Date.now().toString(36);
-      newsFetchPromise = fetch(`${NEWS_SOURCE}?v=${cacheBuster}`, { cache: 'no-store' })
-        .then(async function(res){
-          if (!res.ok){
-            if (res.status === 404) return null;
-            throw new Error(`News fetch failed: ${res.status}`);
-          }
-          const text = (await res.text()).replace(/\r\n/g, '\n').trim();
-          return text.length ? text : null;
-        })
+      function fetchFromSource(index){
+        if (index >= NEWS_SOURCES.length) return Promise.reject(new Error('News unavailable'));
+        const src = NEWS_SOURCES[index];
+        const separator = src.includes('?') ? '&' : '?';
+        return fetch(`${src}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+          .then(async function(res){
+            if (!res.ok){
+              const error = new Error(`News fetch failed: ${res.status}`);
+              error.status = res.status;
+              throw error;
+            }
+            const text = (await res.text()).replace(/\r\n/g, '\n').trim();
+            if (text.length) return text;
+            const emptyError = new Error('News empty');
+            emptyError.code = 'empty';
+            throw emptyError;
+          })
+          .catch(function(err){
+            if (index < NEWS_SOURCES.length - 1){
+              console.warn(err);
+              return fetchFromSource(index + 1);
+            }
+            throw err;
+          });
+      }
+      newsFetchPromise = fetchFromSource(0)
         .then(function(content){
-          const activeLocale = getLocale();
-          if (content){
-            newsContentOverride = content;
-            setNewsBody(content, false);
-          } else {
-            newsContentOverride = null;
-            setNewsBody(activeLocale.newsEmpty, false);
-          }
+          newsContentOverride = content;
+          setNewsBody(content, false);
           requestAnimationFrame(positionNewsPopover);
         })
         .catch(function(err){
           console.warn(err);
           const activeLocale = getLocale();
+          if (err && (err.code === 'empty' || err.status === 404)){
+            newsContentOverride = null;
+          }
           if (newsContentOverride){
             setNewsBody(newsContentOverride, false);
           } else {
