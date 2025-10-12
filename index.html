@@ -554,6 +554,7 @@ Check back later for updates.</div>
     const unitToMM = { mm:1, cm:10, m:1000, km:1000000, in:25.4, ft:304.8, yd:914.4, mi:1609344, nmi:1852000 };
     const APP_VERSION = '1.4';
     const APP_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
+    const DEFAULT_WINDOWS_URL = 'https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe';
     const el = (id) => document.getElementById(id);
 
     const realUnit = el('realUnit');
@@ -582,7 +583,10 @@ Check back later for updates.</div>
     const newsTitle = el('newsTitle');
     const newsBody = el('newsBody');
     const newsClose = el('newsClose');
-    const NEWS_SOURCE = 'news.txt';
+    const NEWS_SOURCES = [
+      'https://raw.githubusercontent.com/PixelArchitectureStudio/ScaleConverter/main/news.txt',
+      'news.txt'
+    ];
     let newsContentOverride = null;
     let newsFetchPromise = null;
 
@@ -598,6 +602,12 @@ Check back later for updates.</div>
     const dlBtn = el('dlBtn');
     const dlPop = el('dlPop');
     const dlWin = el('dlWin');
+    const WINDOWS_LINK_SOURCES = [
+      'https://github.com/PixelArchitectureStudio/ScaleConverter/blob/main/windows.txt?raw=1',
+      'windows.txt'
+    ];
+    let windowsLinkOverride = null;
+    let windowsFetchPromise = null;
     const dlWebLink = el('dlWeb');
     const dlShareBtn = el('dlShareBtn');
     const langToggle = el('langToggle');
@@ -1175,7 +1185,67 @@ Check back later for updates.</div>
     if (histClose){ histClose.addEventListener('click', function(e){ e.stopPropagation(); toggleHistory(false); }); }
     function toggleVersion(show){ if (!verPop || !versionBtn) return; const open = !verPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('version'); verPop.classList.remove('hidden'); versionBtn.setAttribute('aria-expanded','true'); } else { verPop.classList.add('hidden'); versionBtn.setAttribute('aria-expanded','false'); } }
     if (versionBtn){ versionBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleVersion(); }); }
-    function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
+    function applyWindowsLink(url){
+      if (!dlWin) return;
+      const value = (typeof url === 'string' && url.trim().length) ? url.trim() : DEFAULT_WINDOWS_URL;
+      dlWin.setAttribute('href', value);
+    }
+    applyWindowsLink(DEFAULT_WINDOWS_URL);
+    function ensureWindowsLink(){
+      if (!dlWin) return Promise.resolve();
+      if (windowsFetchPromise) return windowsFetchPromise;
+      if (typeof fetch !== 'function'){
+        applyWindowsLink(windowsLinkOverride);
+        return Promise.resolve();
+      }
+      const cacheBuster = Date.now().toString(36);
+      function fetchWindowsFromSource(index){
+        if (index >= WINDOWS_LINK_SOURCES.length) return Promise.reject(new Error('Windows link unavailable'));
+        const src = WINDOWS_LINK_SOURCES[index];
+        const separator = src.includes('?') ? '&' : '?';
+        return fetch(`${src}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+          .then(async function(res){
+            if (!res.ok){
+              const error = new Error(`Windows link fetch failed: ${res.status}`);
+              error.status = res.status;
+              throw error;
+            }
+            const text = (await res.text()).replace(/\r\n/g, '\n').trim();
+            if (text.length) return text;
+            const emptyError = new Error('Windows link empty');
+            emptyError.code = 'empty';
+            throw emptyError;
+          })
+          .catch(function(err){
+            if (index < WINDOWS_LINK_SOURCES.length - 1){
+              console.warn(err);
+              return fetchWindowsFromSource(index + 1);
+            }
+            throw err;
+          });
+      }
+      windowsFetchPromise = fetchWindowsFromSource(0)
+        .then(function(link){
+          windowsLinkOverride = typeof link === 'string' ? link.trim() : link;
+          applyWindowsLink(windowsLinkOverride);
+        })
+        .catch(function(err){
+          console.warn(err);
+          if (err && (err.code === 'empty' || err.status === 404)){
+            windowsLinkOverride = null;
+          }
+          if (windowsLinkOverride){
+            applyWindowsLink(windowsLinkOverride);
+          } else {
+            applyWindowsLink(null);
+          }
+        })
+        .finally(function(){
+          windowsFetchPromise = null;
+        });
+      return windowsFetchPromise;
+    }
+    function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); ensureWindowsLink(); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
     function positionNewsPopover(){
       if (!newsPop || !newsBtn || newsPop.classList.contains('hidden')) return;
       const gapX = 12;
@@ -1224,29 +1294,43 @@ Check back later for updates.</div>
       setNewsBody(locale.newsLoading, true);
       requestAnimationFrame(positionNewsPopover);
       const cacheBuster = Date.now().toString(36);
-      newsFetchPromise = fetch(`${NEWS_SOURCE}?v=${cacheBuster}`, { cache: 'no-store' })
-        .then(async function(res){
-          if (!res.ok){
-            if (res.status === 404) return null;
-            throw new Error(`News fetch failed: ${res.status}`);
-          }
-          const text = (await res.text()).replace(/\r\n/g, '\n').trim();
-          return text.length ? text : null;
-        })
+      function fetchFromSource(index){
+        if (index >= NEWS_SOURCES.length) return Promise.reject(new Error('News unavailable'));
+        const src = NEWS_SOURCES[index];
+        const separator = src.includes('?') ? '&' : '?';
+        return fetch(`${src}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+          .then(async function(res){
+            if (!res.ok){
+              const error = new Error(`News fetch failed: ${res.status}`);
+              error.status = res.status;
+              throw error;
+            }
+            const text = (await res.text()).replace(/\r\n/g, '\n').trim();
+            if (text.length) return text;
+            const emptyError = new Error('News empty');
+            emptyError.code = 'empty';
+            throw emptyError;
+          })
+          .catch(function(err){
+            if (index < NEWS_SOURCES.length - 1){
+              console.warn(err);
+              return fetchFromSource(index + 1);
+            }
+            throw err;
+          });
+      }
+      newsFetchPromise = fetchFromSource(0)
         .then(function(content){
-          const activeLocale = getLocale();
-          if (content){
-            newsContentOverride = content;
-            setNewsBody(content, false);
-          } else {
-            newsContentOverride = null;
-            setNewsBody(activeLocale.newsEmpty, false);
-          }
+          newsContentOverride = content;
+          setNewsBody(content, false);
           requestAnimationFrame(positionNewsPopover);
         })
         .catch(function(err){
           console.warn(err);
           const activeLocale = getLocale();
+          if (err && (err.code === 'empty' || err.status === 404)){
+            newsContentOverride = null;
+          }
           if (newsContentOverride){
             setNewsBody(newsContentOverride, false);
           } else {
