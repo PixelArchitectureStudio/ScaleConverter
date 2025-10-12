@@ -1,1 +1,1 @@
-https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe
+https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.5/ScaleConverter_Win64.exe
