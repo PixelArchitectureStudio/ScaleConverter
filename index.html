@@ -643,6 +643,32 @@ Check back later for updates.</div>
         return trimmed;
       }
     }
+    function buildTextFetchRequest(src, cacheBuster){
+      if (!src || typeof src !== 'string') return { url: src, options: undefined };
+      const trimmed = src.trim();
+      if (!trimmed) return { url: trimmed, options: undefined };
+      let urlString = trimmed;
+      let fetchOptions;
+      try {
+        const parsed = new URL(trimmed, window.location.href);
+        const protocol = parsed.protocol ? parsed.protocol.toLowerCase() : '';
+        const isHttp = protocol === 'http:' || protocol === 'https:';
+        if (isHttp && cacheBuster){
+          parsed.searchParams.set('v', cacheBuster);
+        }
+        urlString = parsed.toString();
+        if (isHttp){
+          fetchOptions = { cache: 'no-store' };
+        }
+      } catch(err){
+        if (cacheBuster && /^https?:/i.test(trimmed)){
+          const separator = trimmed.includes('?') ? '&' : '?';
+          urlString = `${trimmed}${separator}v=${cacheBuster}`;
+          fetchOptions = { cache: 'no-store' };
+        }
+      }
+      return { url: urlString, options: fetchOptions };
+    }
     const dlWebLink = el('dlWeb');
     const dlShareBtn = el('dlShareBtn');
     const langToggle = el('langToggle');
@@ -1239,8 +1265,8 @@ Check back later for updates.</div>
         const src = WINDOWS_LINK_SOURCES[index];
         const normalizedSrc = normalizeRemoteTextSource(src) || src;
         const urlToFetch = typeof normalizedSrc === 'string' ? normalizedSrc : String(normalizedSrc || '');
-        const separator = urlToFetch.includes('?') ? '&' : '?';
-        return fetch(`${urlToFetch}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+        const request = buildTextFetchRequest(urlToFetch, cacheBuster);
+        return fetch(request.url, request.options)
           .then(async function(res){
             if (!res.ok){
               const error = new Error(`Windows link fetch failed: ${res.status}`);
@@ -1336,8 +1362,8 @@ Check back later for updates.</div>
         const src = NEWS_SOURCES[index];
         const normalizedSrc = normalizeRemoteTextSource(src) || src;
         const urlToFetch = typeof normalizedSrc === 'string' ? normalizedSrc : String(normalizedSrc || '');
-        const separator = urlToFetch.includes('?') ? '&' : '?';
-        return fetch(`${urlToFetch}${separator}v=${cacheBuster}`, { cache: 'no-store' })
+        const request = buildTextFetchRequest(urlToFetch, cacheBuster);
+        return fetch(request.url, request.options)
           .then(async function(res){
             if (!res.ok){
               const error = new Error(`News fetch failed: ${res.status}`);
