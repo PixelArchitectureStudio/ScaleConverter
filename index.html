@@ -554,6 +554,7 @@ Check back later for updates.</div>
     const unitToMM = { mm:1, cm:10, m:1000, km:1000000, in:25.4, ft:304.8, yd:914.4, mi:1609344, nmi:1852000 };
     const APP_VERSION = '1.4';
     const APP_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
+    const SHARE_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
     const DEFAULT_WINDOWS_URL = 'https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe';
     const el = (id) => document.getElementById(id);
 
@@ -1440,7 +1441,8 @@ Check back later for updates.</div>
         e.preventDefault();
         e.stopPropagation();
         const locale = getLocale();
-        const shareData = { title: locale.shareTitle, text: locale.shareText, url: APP_URL };
+        const shareUrl = SHARE_URL || APP_URL;
+        const shareData = { title: locale.shareTitle, text: locale.shareText, url: shareUrl };
         let handled = false;
         if (typeof navigator !== 'undefined' && navigator.share){
           try {
@@ -1452,7 +1454,7 @@ Check back later for updates.</div>
         }
         if (!handled && typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext){
           try {
-            await navigator.clipboard.writeText(APP_URL);
+            await navigator.clipboard.writeText(shareUrl);
             alert(locale.shareCopied);
             handled = true;
           } catch(err){
@@ -1461,7 +1463,7 @@ Check back later for updates.</div>
         }
         if (!handled){
           alert(locale.shareFallback);
-          openLinkExternally(APP_URL, {preferSystem:true});
+          openLinkExternally(shareUrl, {preferSystem:true});
         }
         toggleDownload(false);
       });
