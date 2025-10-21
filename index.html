@@ -499,11 +499,15 @@ Check back later for updates.</div>
                   </svg>
                   <span id="downloadWindows" data-i18n-key="downloadWindows">دانلود نسخه ویندوز</span>
                 </a>
+                <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter.apk" id="dlAndroid" class="dl-item" role="menuitem" target="_blank" rel="noopener">
+                  <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M17.523 6.08l1.43-2.476a.274.274 0 00-.474-.272l-1.5 2.6a7.518 7.518 0 00-8.956 0l-1.5-2.6a.274.274 0 00-.475.272l1.431 2.475A7.519 7.519 0 003.76 12.6v5.842A2.558 2.558 0 006.377 21h.846v2.026c0 .55.438.974.957.974h1.274a.966.966 0 00.958-.974V21h3.584v2.026c0 .55.438.974.957.974h1.274a.966.966 0 00.958-.974V21h.846a2.558 2.558 0 002.616-2.558V12.6a7.519 7.519 0 00-3.824-6.52zM9.46 10.956a.956.956 0 110-1.912.956.956 0 010 1.912zm5.08 0a.956.956 0 110-1.912.956.956 0 010 1.912z"/>
+                  </svg>
+                  <span id="downloadAndroid" data-i18n-key="downloadAndroid">دانلود نسخه اندروید</span>
+                </a>
                 <a href="https://pixelarchitecturestudio.github.io/ScaleConverter/" target="_blank" rel="noopener" id="dlWeb" class="dl-item" role="menuitem">
                   <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="7" y="2" width="10" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
-                    <path d="M10 4.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M9 19.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    <path fill="currentColor" d="M16.365 1.43c0 1.14-.412 2.058-1.237 2.744-.826.687-1.74 1.075-2.742 1.165-.1-.333-.15-.66-.15-.984 0-.46.125-.95.376-1.47.25-.52.58-.95.988-1.292.408-.343.83-.615 1.264-.816.433-.2.83-.3 1.193-.3.046.14.08.29.105.452.023.16.04.31.04.45h.163c.195 0 .395.035.6.105zm4.117 16.673c-.265.81-.62 1.546-1.065 2.21-.445.666-.937 1.285-1.477 1.858-.54.574-1.067 1.004-1.58 1.292-.514.29-.97.434-1.37.434-.254 0-.562-.07-.922-.21-.36-.14-.74-.21-1.14-.21-.427 0-.824.07-1.19.21-.367.14-.66.21-.877.21-.374 0-.795-.136-1.265-.41-.47-.273-.963-.67-1.48-1.19a13.658 13.658 0 01-1.62-2.1c-.464-.743-.85-1.562-1.155-2.457A7.494 7.494 0 013.1 15.25c0-1.312.285-2.542.856-3.69.57-1.146 1.332-2.1 2.285-2.856.953-.754 1.994-1.132 3.123-1.132.487 0 1.12.12 1.897.36.777.24 1.273.36 1.488.36.163 0 .727-.164 1.69-.492.907-.31 1.675-.44 2.305-.39 1.704.137 2.988.86 3.852 2.17-1.515.917-2.272 2.196-2.272 3.836 0 1.276.46 2.332 1.38 3.166.41.39.873.69 1.39.9-.11.3-.237.62-.382.96z"/>
                   </svg>
                   <span id="downloadWeb" data-i18n-key="downloadWeb">نسخه وب اپ</span>
                 </a>
@@ -556,6 +560,7 @@ Check back later for updates.</div>
     const APP_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
     const SHARE_URL = 'https://pixelarchitecturestudio.github.io/ScaleConverter/';
     const DEFAULT_WINDOWS_URL = 'https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe';
+    const DEFAULT_ANDROID_URL = 'https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter.apk';
     const el = (id) => document.getElementById(id);
 
     const realUnit = el('realUnit');
@@ -603,12 +608,19 @@ Check back later for updates.</div>
     const dlBtn = el('dlBtn');
     const dlPop = el('dlPop');
     const dlWin = el('dlWin');
+    const dlAndroid = el('dlAndroid');
     const WINDOWS_LINK_SOURCES = [
       'https://raw.githubusercontent.com/PixelArchitectureStudio/ScaleConverter/main/windows.txt',
       'windows.txt'
     ];
     let windowsLinkOverride = null;
     let windowsFetchPromise = null;
+    const ANDROID_LINK_SOURCES = [
+      'https://raw.githubusercontent.com/PixelArchitectureStudio/ScaleConverter/main/Android.txt',
+      'Android.txt'
+    ];
+    let androidLinkOverride = null;
+    let androidFetchPromise = null;
     function normalizeRemoteTextSource(src){
       if (!src || typeof src !== 'string') return src;
       const trimmed = src.trim();
@@ -685,6 +697,7 @@ Check back later for updates.</div>
     const footerCredit = el('footerCredit');
     const downloadLabel = el('downloadLabel');
     const downloadWindows = el('downloadWindows');
+    const downloadAndroid = el('downloadAndroid');
     const downloadWeb = el('downloadWeb');
     const downloadShare = el('downloadShare');
     const downloadWebHelp = el('downloadWebHelp');
@@ -767,6 +780,7 @@ Check back later for updates.</div>
         downloadTitle: 'دانلود نرم‌افزار',
         downloadAria: 'دانلود',
         downloadWindows: 'دانلود نسخه ویندوز',
+        downloadAndroid: 'دانلود نسخه اندروید',
         downloadWeb: 'نسخه وب اپ',
         downloadWebHelp: 'آموزش نصب نسخه وب اپ',
         downloadShare: 'اشتراک‌گذاری لینک',
@@ -839,6 +853,7 @@ Check back later for updates.</div>
         downloadTitle: 'Download software',
         downloadAria: 'Download',
         downloadWindows: 'Download Windows version',
+        downloadAndroid: 'Download Android version',
         downloadWeb: 'Web app version',
         downloadWebHelp: 'Web app install guide',
         downloadShare: 'Share app link',
@@ -1052,6 +1067,7 @@ Check back later for updates.</div>
       if (footerCredit) footerCredit.innerHTML = locale.footerCredit;
       if (downloadLabel) downloadLabel.textContent = locale.downloadLabel;
       if (downloadWindows) downloadWindows.textContent = locale.downloadWindows;
+      if (downloadAndroid) downloadAndroid.textContent = locale.downloadAndroid;
       if (downloadWeb) downloadWeb.textContent = locale.downloadWeb;
       if (downloadShare) downloadShare.textContent = locale.downloadShare;
       if (downloadWebHelp) downloadWebHelp.textContent = locale.downloadWebHelp;
@@ -1309,7 +1325,69 @@ Check back later for updates.</div>
         });
       return windowsFetchPromise;
     }
-    function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); ensureWindowsLink(); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
+    function applyAndroidLink(url){
+      if (!dlAndroid) return;
+      const value = (typeof url === 'string' && url.trim().length) ? url.trim() : DEFAULT_ANDROID_URL;
+      dlAndroid.setAttribute('href', value);
+    }
+    applyAndroidLink(DEFAULT_ANDROID_URL);
+    function ensureAndroidLink(){
+      if (!dlAndroid) return Promise.resolve();
+      if (androidFetchPromise) return androidFetchPromise;
+      if (typeof fetch !== 'function'){
+        applyAndroidLink(androidLinkOverride);
+        return Promise.resolve();
+      }
+      const cacheBuster = Date.now().toString(36);
+      function fetchAndroidFromSource(index){
+        if (index >= ANDROID_LINK_SOURCES.length) return Promise.reject(new Error('Android link unavailable'));
+        const src = ANDROID_LINK_SOURCES[index];
+        const normalizedSrc = normalizeRemoteTextSource(src) || src;
+        const urlToFetch = typeof normalizedSrc === 'string' ? normalizedSrc : String(normalizedSrc || '');
+        const request = buildTextFetchRequest(urlToFetch, cacheBuster);
+        return fetch(request.url, request.options)
+          .then(async function(res){
+            if (!res.ok){
+              const error = new Error(`Android link fetch failed: ${res.status}`);
+              error.status = res.status;
+              throw error;
+            }
+            const text = (await res.text()).replace(/\r\n/g, '\n').trim();
+            if (text.length) return text;
+            const emptyError = new Error('Android link empty');
+            emptyError.code = 'empty';
+            throw emptyError;
+          })
+          .catch(function(err){
+            if (index < ANDROID_LINK_SOURCES.length - 1){
+              console.warn(err);
+              return fetchAndroidFromSource(index + 1);
+            }
+            throw err;
+          });
+      }
+      androidFetchPromise = fetchAndroidFromSource(0)
+        .then(function(link){
+          androidLinkOverride = typeof link === 'string' ? link.trim() : link;
+          applyAndroidLink(androidLinkOverride);
+        })
+        .catch(function(err){
+          console.warn(err);
+          if (err && (err.code === 'empty' || err.status === 404)){
+            androidLinkOverride = null;
+          }
+          if (androidLinkOverride){
+            applyAndroidLink(androidLinkOverride);
+          } else {
+            applyAndroidLink(null);
+          }
+        })
+        .finally(function(){
+          androidFetchPromise = null;
+        });
+      return androidFetchPromise;
+    }
+    function toggleDownload(show){ if (!dlPop || !dlBtn) return; const open = !dlPop.classList.contains('hidden'); const willOpen = (typeof show==='boolean') ? show : !open; if (willOpen){ closeOthers('download'); dlPop.classList.remove('hidden'); dlBtn.setAttribute('aria-expanded','true'); ensureWindowsLink(); ensureAndroidLink(); } else { dlPop.classList.add('hidden'); dlBtn.setAttribute('aria-expanded','false'); } }
     function positionNewsPopover(){
       if (!newsPop || !newsBtn || newsPop.classList.contains('hidden')) return;
       const gapX = 12;
@@ -1418,6 +1496,16 @@ Check back later for updates.</div>
     if (dlBtn){ dlBtn.addEventListener('click', function(e){ e.stopPropagation(); toggleDownload(); }); }
     if (dlWin){
       dlWin.addEventListener('click', function(e){
+        if (FORCE_SYSTEM_BROWSER){
+          e.preventDefault();
+          const href = this.getAttribute('href');
+          openLinkExternally(href, {preferSystem:true});
+        }
+        toggleDownload(false);
+      });
+    }
+    if (dlAndroid){
+      dlAndroid.addEventListener('click', function(e){
         if (FORCE_SYSTEM_BROWSER){
           e.preventDefault();
           const href = this.getAttribute('href');
