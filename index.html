@@ -312,7 +312,8 @@
     .dl-item span{flex:1;text-align:inherit}
     .dl-item:hover{background:#141a33}
     .dl-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-    .dl-ic{width:16px;height:16px}
+    .dl-ic{display:block;flex-shrink:0}
+    svg.dl-ic{width:16px;height:16px}
     .dl-emoji{font-size:16px;line-height:1}
     body.light .dl-pop{background:#ffffff; border-color:#cbd5e1; box-shadow:0 10px 30px rgba(0,0,0,.12)}
     body.light .dl-item:hover{background:#f1f5f9}
@@ -491,20 +492,11 @@ Check back later for updates.</div>
               </button>
               <div id="dlPop" class="dl-pop hidden" role="menu" aria-label="دانلود">
                 <a href="https://github.com/PixelArchitectureStudio/ScaleConverter/releases/download/v1.4/ScaleConverter_Win64.exe" id="dlWin" class="dl-item" role="menuitem" target="_blank" rel="noopener">
-                  <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="3" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
-                    <rect x="13" y="3" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
-                    <rect x="3" y="13" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
-                    <rect x="13" y="13" width="8" height="8" rx="1.6" ry="1.6" fill="currentColor"/>
-                  </svg>
+                  <img class="dl-ic" src="https://img.icons8.com/metro/26/android-os.png" width="26" height="26" alt="android-os" />
                   <span id="downloadWindows" data-i18n-key="downloadWindows">دانلود نسخه ویندوز</span>
                 </a>
                 <a href="https://pixelarchitecturestudio.github.io/ScaleConverter/" target="_blank" rel="noopener" id="dlWeb" class="dl-item" role="menuitem">
-                  <svg class="dl-ic" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect x="7" y="2" width="10" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="1.6"/>
-                    <path d="M10 4.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                    <path d="M9 19.5h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-                  </svg>
+                  <img class="dl-ic" src="https://img.icons8.com/material-outlined/24/mac-os--v2.png" width="24" height="24" alt="mac-os--v2" />
                   <span id="downloadWeb" data-i18n-key="downloadWeb">نسخه وب اپ</span>
                 </a>
                 <button type="button" id="dlShareBtn" class="dl-item" role="menuitem">
