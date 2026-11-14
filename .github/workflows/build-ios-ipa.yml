@@ -1,0 +1,80 @@
+name: Build Scale Converter unsigned IPA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ios_source.tar.gz
+
+permissions:
+  contents: read
+
+jobs:
+  build-ipa:
+    name: Build unsigned iOS IPA
+    runs-on: macos-15
+    timeout-minutes: 50
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unpack original Median iOS source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! -f ios_source.tar.gz ]]; then
+            echo '::error::Upload the original ios_source.tar.gz to the repository root, then rerun this workflow.'
+            exit 1
+          fi
+          tar -tzf ios_source.tar.gz | grep -q '^ios/ScaleConverter.xcworkspace/contents.xcworkspacedata$'
+          tar -xzf ios_source.tar.gz
+          test -f ios/Pods/Pods.xcodeproj/project.pbxproj
+          test -f ios/ScaleConverter.xcodeproj/xcshareddata/xcschemes/ScaleConverter.xcscheme
+          xcodebuild -version
+
+      - name: Archive iOS app without code signing
+        shell: bash
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -workspace ios/ScaleConverter.xcworkspace \
+            -scheme ScaleConverter \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -sdk iphoneos \
+            -archivePath "$RUNNER_TEMP/ScaleConverter.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY='' \
+            DEVELOPMENT_TEAM='' \
+            archive 2>&1 | tee "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: Package unsigned IPA
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/ScaleConverter.xcarchive/Products/Applications/ScaleConverter.app"
+          test -d "$APP"
+          mkdir -p "$RUNNER_TEMP/package/Payload" export
+          ditto "$APP" "$RUNNER_TEMP/package/Payload/ScaleConverter.app"
+          (cd "$RUNNER_TEMP/package" && zip -qry "$GITHUB_WORKSPACE/export/ScaleConverter-unsigned.ipa" Payload)
+          unzip -l export/ScaleConverter-unsigned.ipa | grep 'Payload/ScaleConverter.app/'
+          ls -lh export/ScaleConverter-unsigned.ipa
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScaleConverter-unsigned-IPA
+          path: export/ScaleConverter-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScaleConverter-build-log
+          path: ${{ runner.temp }}/xcodebuild.log
+          if-no-files-found: ignore
+          retention-days: 7
