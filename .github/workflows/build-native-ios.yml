@@ -1,0 +1,52 @@
+name: Build native Scale Converter IPA
+on:
+  workflow_dispatch:
+  push:
+    branches: [ios-native-v2]
+    paths: ['ios-native/**', '.github/workflows/build-native-ios.yml']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Prepare offline website and icons
+        run: |
+          python -m pip install Pillow==11.3.0
+          python ios-native/prepare.py
+      - name: Generate fresh Xcode project
+        run: |
+          brew install xcodegen
+          cd ios-native
+          xcodegen generate
+      - name: Build iPhone and iPad application
+        run: |
+          set -o pipefail
+          xcodebuild -project ios-native/ScaleConverter.xcodeproj -scheme ScaleConverter -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build CODE_SIGNING_ALLOWED=NO build | tee build.log
+      - name: Package unsigned IPA for iLoader
+        run: |
+          mkdir -p output/Payload
+          cp -R build/Build/Products/Release-iphoneos/ScaleConverter.app output/Payload/
+          test -f output/Payload/ScaleConverter.app/Offline/index.html
+          test -f output/Payload/ScaleConverter.app/Offline/fonts.css
+          file output/Payload/ScaleConverter.app/ScaleConverter
+          cd output
+          zip -qry ScaleConverter-v2-unsigned.ipa Payload
+          shasum -a 256 ScaleConverter-v2-unsigned.ipa > SHA256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ScaleConverter-v2-IPA
+          path: |
+            output/ScaleConverter-v2-unsigned.ipa
+            output/SHA256.txt
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-build-log
+          path: build.log

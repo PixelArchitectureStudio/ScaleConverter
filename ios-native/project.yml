@@ -1,0 +1,40 @@
+name: ScaleConverter
+options:
+  bundleIdPrefix: studio.pixelarchitecture
+  deploymentTarget:
+    iOS: '15.0'
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    TARGETED_DEVICE_FAMILY: '1,2'
+    CODE_SIGNING_ALLOWED: NO
+    MARKETING_VERSION: '2.0.0'
+    CURRENT_PROJECT_VERSION: '1'
+targets:
+  ScaleConverter:
+    type: application
+    platform: iOS
+    sources:
+      - path: App.swift
+      - path: Assets.xcassets
+      - path: Offline
+        type: folder
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: studio.pixelarchitecture.scaleconverter
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Scale Converter
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        ITSAppUsesNonExemptEncryption: false
