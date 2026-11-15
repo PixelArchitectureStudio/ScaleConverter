@@ -18,6 +18,9 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
     private let monitor = NWPathMonitor()
     private let banner = UILabel()
     private let host = UIView()
+    private let loadingOverlay = UIView()
+    private var receivedNetworkStatus = false
+    private var startupDeadline: DispatchWorkItem?
     private var current: WKWebView?
     private var candidate: WKWebView?
     private var offline = true
@@ -50,15 +53,28 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
         ])
         banner.setContentHuggingPriority(.required, for: .vertical)
         banner.setContentCompressionResistancePriority(.required, for: .vertical)
-        loadOffline()
+        banner.isHidden = true
+        configureLoading()
+        #if DEBUG
+        if ProcessInfo.processInfo.arguments.contains("-PreviewLoading") { return }
+        if ProcessInfo.processInfo.arguments.contains("-PreviewOffline") { loadOffline(); return }
+        #endif
+        let deadline = DispatchWorkItem { [weak self] in
+            guard let self = self, !self.receivedNetworkStatus else { return }
+            self.loadOffline()
+        }
+        startupDeadline = deadline
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4, execute: deadline)
         monitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
                 guard let self = self else { return }
+                self.receivedNetworkStatus = true
+                self.startupDeadline?.cancel()
                 self.connected = path.status == .satisfied
                 if self.connected { self.tryOnline() }
                 else {
                     self.cancelCandidate()
-                    if !self.offline { self.loadOffline() }
+                    if self.current == nil || !self.offline { self.loadOffline() }
                 }
             }
         }
@@ -68,6 +84,45 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
             self.tryOnline()
         }
         NotificationCenter.default.addObserver(self, selector: #selector(resume), name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+    private func configureLoading() {
+        loadingOverlay.backgroundColor = .systemBackground
+        loadingOverlay.translatesAutoresizingMaskIntoConstraints = false
+        loadingOverlay.accessibilityIdentifier = "startupLoading"
+        view.addSubview(loadingOverlay)
+        NSLayoutConstraint.activate([
+            loadingOverlay.topAnchor.constraint(equalTo: view.topAnchor),
+            loadingOverlay.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            loadingOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            loadingOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        let title = UILabel()
+        title.text = "Scale Converter"
+        title.font = .systemFont(ofSize: 23, weight: .semibold)
+        title.textColor = .label
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.startAnimating()
+        let subtitle = UILabel()
+        subtitle.text = "در حال بارگذاری…"
+        subtitle.font = .systemFont(ofSize: 14)
+        subtitle.textColor = .secondaryLabel
+        let content = UIStackView(arrangedSubviews: [title, spinner, subtitle])
+        content.axis = .vertical
+        content.alignment = .center
+        content.spacing = 20
+        content.translatesAutoresizingMaskIntoConstraints = false
+        loadingOverlay.addSubview(content)
+        NSLayoutConstraint.activate([
+            content.centerXAnchor.constraint(equalTo: loadingOverlay.centerXAnchor),
+            content.centerYAnchor.constraint(equalTo: loadingOverlay.centerYAnchor)
+        ])
+    }
+    private func finishLoading() {
+        loadingOverlay.isHidden = true
+    }
+    private func onlineFailed() {
+        cancelCandidate()
+        if current == nil { loadOffline() }
     }
     @objc private func resume() { if connected && offline { tryOnline() } }
     private func makeWebView() -> WKWebView {
@@ -135,14 +190,14 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
         capture { [weak self, weak web] state in
             guard let self = self, let web = web, self.candidate === web else { return }
             self.seed(web, state: state)
-            var request = URLRequest(url: self.site, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 12)
+            var request = URLRequest(url: self.site, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 8)
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
             web.load(request)
             let task = DispatchWorkItem { [weak self, weak web] in
-                if let self = self, self.candidate === web { self.cancelCandidate() }
+                if let self = self, self.candidate === web { self.onlineFailed() }
             }
             self.timeout = task
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15, execute: task)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 10, execute: task)
         }
     }
     private func cancelCandidate() {
@@ -161,29 +216,30 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
                 self.offline = false
                 self.banner.isHidden = true
                 self.mount(web)
+                self.finishLoading()
             }
         } else if webView === current && offline {
             loadingLocal = false
             restore(webView, state: pendingState)
             pendingState = nil
-            if connected { tryOnline() }
+            finishLoading()
         }
     }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { failed(webView, error) }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { failed(webView, error) }
     private func failed(_ web: WKWebView, _ error: Error) {
         guard (error as NSError).code != NSURLErrorCancelled else { return }
-        if web === candidate { cancelCandidate() }
+        if web === candidate { onlineFailed() }
         else if web === current && !offline { loadOffline() }
     }
     func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-        if webView === candidate { cancelCandidate() }
+        if webView === candidate { onlineFailed() }
         else { loadingLocal = false; loadOffline() }
     }
     func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse, decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
         if response.isForMainFrame, let http = response.response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
             decisionHandler(.cancel)
-            if webView === candidate { cancelCandidate() }
+            if webView === candidate { onlineFailed() }
             else if !offline { loadOffline() }
         } else { decisionHandler(.allow) }
     }
@@ -202,5 +258,5 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
         if action.targetFrame == nil { webView.load(action.request) }
         return nil
     }
-    deinit { monitor.cancel(); timer?.invalidate(); NotificationCenter.default.removeObserver(self) }
+    deinit { startupDeadline?.cancel(); monitor.cancel(); timer?.invalidate(); NotificationCenter.default.removeObserver(self) }
 }
