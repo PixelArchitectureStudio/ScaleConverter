@@ -128,12 +128,28 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
     private func makeWebView() -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        let disableZoom = """
+        (function() {
+          let viewport = document.querySelector('meta[name="viewport"]');
+          if (!viewport) {
+            viewport = document.createElement('meta');
+            viewport.name = 'viewport';
+            document.head.appendChild(viewport);
+          }
+          viewport.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+          ['gesturestart','gesturechange','gestureend'].forEach(n => document.addEventListener(n, e => e.preventDefault(), {passive:false}));
+        })();
+        """
+        config.userContentController.addUserScript(WKUserScript(source: disableZoom, injectionTime: .atDocumentEnd, forMainFrameOnly: true))
         let web = WKWebView(frame: .zero, configuration: config)
         web.navigationDelegate = self
         web.uiDelegate = self
         web.isOpaque = false
         web.backgroundColor = .systemBackground
         web.scrollView.contentInsetAdjustmentBehavior = .never
+        web.scrollView.pinchGestureRecognizer?.isEnabled = false
+        web.scrollView.maximumZoomScale = 1
+        web.scrollView.minimumZoomScale = 1
         web.translatesAutoresizingMaskIntoConstraints = false
         return web
     }
