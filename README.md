@@ -35,3 +35,13 @@ Architects, designers, students, and anyone working with scaled drawings.
 ---
 
 Developed by **Pixel Studio**
+
+## License
+
+The original source code for Scale Converter is licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+Noncommercial use, modification, and redistribution are permitted under the terms of this license. Commercial use of the software or its source code requires separate authorization from the copyright holder.
+
+Required Notice: Copyright 2026 Pixel Studio (https://github.com/PixelArchitectureStudio)
+
+Third-party components and assets, if any, remain subject to their respective licenses.
