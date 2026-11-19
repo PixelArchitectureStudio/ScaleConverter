@@ -29,8 +29,13 @@ assets = root / 'Assets.xcassets'
 icons = assets / 'AppIcon.appiconset'
 icons.mkdir(parents=True, exist_ok=True)
 (assets / 'Contents.json').write_text(json.dumps({'info': {'author': 'xcode', 'version': 1}}))
-source = Image.open(io.BytesIO(cairosvg.svg2png(url=str(root / 'AppIcon.svg'), output_width=1024, output_height=1024))).convert('RGB')
-assert all(source.getpixel(p) == (96,96,96) for p in [(0,0),(1023,0),(0,1023),(1023,1023)])
+# Preserve the original icon proportions; crop the same 7 pixels from every edge.
+original = Image.open(repo / 'apple-touch-icon.png').convert('RGBA')
+assert original.size == (180, 180)
+original = original.crop((7, 7, 173, 173))
+background = Image.new('RGBA', original.size, (96, 96, 96, 255))
+background.alpha_composite(original)
+source = background.convert('RGB').resize((1024, 1024), Image.Resampling.LANCZOS)
 entries = []
 for idiom, sizes in [('iphone', [(20,2),(20,3),(29,2),(29,3),(40,2),(40,3),(60,2),(60,3)]), ('ipad', [(20,1),(20,2),(29,1),(29,2),(40,1),(40,2),(76,1),(76,2),(83.5,2)]), ('ios-marketing', [(1024,1)])]:
     for size, scale in sizes:
