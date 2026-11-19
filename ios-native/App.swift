@@ -128,6 +128,10 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
     private func makeWebView() -> WKWebView {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        if current == nil {
+            let initialTheme = "try { localStorage.setItem('theme', matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); } catch (_) {}"
+            config.userContentController.addUserScript(WKUserScript(source: initialTheme, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+        }
         let disableZoom = """
         (function() {
           let viewport = document.querySelector('meta[name="viewport"]');

@@ -38,13 +38,13 @@ jobs:
           test -f output/Payload/ScaleConverter.app/Offline/fonts.css
           file output/Payload/ScaleConverter.app/ScaleConverter
           cd output
-          zip -qry ScaleConverter-v2.2-unsigned.ipa Payload
-          shasum -a 256 ScaleConverter-v2.2-unsigned.ipa > SHA256.txt
+          zip -qry ScaleConverter-v2.3-unsigned.ipa Payload
+          shasum -a 256 ScaleConverter-v2.3-unsigned.ipa > SHA256.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: ScaleConverter-v2.2-IPA
+          name: ScaleConverter-v2.3-IPA
           path: |
-            output/ScaleConverter-v2.2-unsigned.ipa
+            output/ScaleConverter-v2.3-unsigned.ipa
             output/SHA256.txt
           retention-days: 90
       - uses: actions/upload-artifact@v4
