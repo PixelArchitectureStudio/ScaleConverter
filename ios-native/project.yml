@@ -8,8 +8,8 @@ settings:
     SWIFT_VERSION: '5.0'
     TARGETED_DEVICE_FAMILY: '1,2'
     CODE_SIGNING_ALLOWED: NO
-    MARKETING_VERSION: '2.4.0'
-    CURRENT_PROJECT_VERSION: '5'
+    MARKETING_VERSION: '2.5.0'
+    CURRENT_PROJECT_VERSION: '6'
 targets:
   ScaleConverter:
     type: application
@@ -17,6 +17,8 @@ targets:
     sources:
       - path: App.swift
       - path: Assets.xcassets
+      - path: Fonts
+        type: folder
       - path: Splash
         type: folder
       - path: Offline
@@ -29,8 +31,8 @@ targets:
       path: Info.plist
       properties:
         CFBundleDisplayName: Scale Converter
-        CFBundleShortVersionString: '2.4.0'
-        CFBundleVersion: '5'
+        CFBundleShortVersionString: '2.5.0'
+        CFBundleVersion: '6'
         UILaunchScreen: {}
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait

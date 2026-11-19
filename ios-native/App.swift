@@ -1,6 +1,7 @@
 import UIKit
 import WebKit
 import Network
+import CoreText
 
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -125,7 +126,10 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
         spinner.startAnimating()
         let subtitle = UILabel()
         subtitle.text = "در حال بارگذاری…"
-        subtitle.font = .systemFont(ofSize: 14)
+        if let url = Bundle.main.url(forResource: "Vazirmatn-Regular", withExtension: "ttf", subdirectory: "Fonts") {
+            CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
+        }
+        subtitle.font = UIFont(name: "Vazirmatn-Regular", size: 14) ?? .systemFont(ofSize: 14)
         subtitle.textColor = .secondaryLabel
         let progress = UIStackView(arrangedSubviews: [spinner, subtitle])
         progress.axis = .vertical
