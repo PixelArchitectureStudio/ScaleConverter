@@ -86,7 +86,11 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
         NotificationCenter.default.addObserver(self, selector: #selector(resume), name: UIApplication.didBecomeActiveNotification, object: nil)
     }
     private func configureLoading() {
-        loadingOverlay.backgroundColor = .systemBackground
+        loadingOverlay.backgroundColor = UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 14/255.0, green: 13/255.0, blue: 9/255.0, alpha: 1)
+                : UIColor(white: 254/255.0, alpha: 1)
+        }
         loadingOverlay.translatesAutoresizingMaskIntoConstraints = false
         loadingOverlay.accessibilityIdentifier = "startupLoading"
         view.addSubview(loadingOverlay)
@@ -96,25 +100,42 @@ final class ConverterController: UIViewController, WKNavigationDelegate, WKUIDel
             loadingOverlay.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             loadingOverlay.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        let title = UILabel()
-        title.text = "Scale Converter"
-        title.font = .systemFont(ofSize: 23, weight: .semibold)
-        title.textColor = .label
+        let asset = UIImageAsset()
+        for (name, style) in [("light", UIUserInterfaceStyle.light), ("dark", UIUserInterfaceStyle.dark)] {
+            guard let url = Bundle.main.url(forResource: name, withExtension: "png", subdirectory: "Splash"),
+                  let image = UIImage(contentsOfFile: url.path) else { continue }
+            asset.register(image, with: UITraitCollection(userInterfaceStyle: style))
+        }
+        let logo = UIImageView(image: asset.image(with: traitCollection))
+        logo.contentMode = .scaleAspectFit
+        logo.accessibilityLabel = "Scale Converter"
+        logo.translatesAutoresizingMaskIntoConstraints = false
+        loadingOverlay.addSubview(logo)
+        let preferredWidth = logo.widthAnchor.constraint(equalTo: loadingOverlay.widthAnchor, multiplier: 0.42)
+        preferredWidth.priority = .defaultHigh
+        NSLayoutConstraint.activate([
+            logo.centerXAnchor.constraint(equalTo: loadingOverlay.centerXAnchor),
+            logo.centerYAnchor.constraint(equalTo: loadingOverlay.centerYAnchor),
+            logo.heightAnchor.constraint(equalTo: logo.widthAnchor),
+            preferredWidth,
+            logo.widthAnchor.constraint(lessThanOrEqualToConstant: 230),
+            logo.heightAnchor.constraint(lessThanOrEqualTo: loadingOverlay.heightAnchor, multiplier: 0.50)
+        ])
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.startAnimating()
         let subtitle = UILabel()
         subtitle.text = "در حال بارگذاری…"
         subtitle.font = .systemFont(ofSize: 14)
         subtitle.textColor = .secondaryLabel
-        let content = UIStackView(arrangedSubviews: [title, spinner, subtitle])
-        content.axis = .vertical
-        content.alignment = .center
-        content.spacing = 20
-        content.translatesAutoresizingMaskIntoConstraints = false
-        loadingOverlay.addSubview(content)
+        let progress = UIStackView(arrangedSubviews: [spinner, subtitle])
+        progress.axis = .vertical
+        progress.alignment = .center
+        progress.spacing = 14
+        progress.translatesAutoresizingMaskIntoConstraints = false
+        loadingOverlay.addSubview(progress)
         NSLayoutConstraint.activate([
-            content.centerXAnchor.constraint(equalTo: loadingOverlay.centerXAnchor),
-            content.centerYAnchor.constraint(equalTo: loadingOverlay.centerYAnchor)
+            progress.topAnchor.constraint(equalTo: logo.bottomAnchor, constant: 24),
+            progress.centerXAnchor.constraint(equalTo: loadingOverlay.centerXAnchor)
         ])
     }
     private func finishLoading() {
