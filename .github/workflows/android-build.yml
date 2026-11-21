@@ -52,11 +52,14 @@ jobs:
             sdkmanager=/tmp/scale-android-cli/cmdline-tools/bin/sdkmanager
           fi
           "$sdkmanager" --sdk_root="$ANDROID_HOME" "$image" emulator platform-tools
-          echo no | "${sdkmanager%/*}/avdmanager" create avd --force --name scale-smoke --package "$image"
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/scale-avds"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | "${sdkmanager%/*}/avdmanager" create avd --force --name scale-smoke --package "$image" --path "$ANDROID_AVD_HOME/scale-smoke.avd"
           export PATH="$ANDROID_HOME/platform-tools:$PATH"
+          test -f "$ANDROID_AVD_HOME/scale-smoke.ini"
           "$ANDROID_HOME/emulator/emulator" -avd scale-smoke -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > /tmp/scale-emulator.log 2>&1 &
-          trap 'tail -30 /tmp/scale-emulator.log; adb logcat -d -b crash' EXIT
-          adb wait-for-device
+          trap 'tail -30 /tmp/scale-emulator.log; timeout 7 adb logcat -d -b crash || true' EXIT
+          timeout 90 adb wait-for-device
           timeout 180 bash -c 'until [[ "$(adb shell getprop sys.boot_completed | tr -d "\r")" == 1 ]]; do sleep 3; done'
           adb shell input keyevent 82
           adb install android/app/build/outputs/apk/debug/app-debug.apk
