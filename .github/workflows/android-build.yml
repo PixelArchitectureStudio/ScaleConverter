@@ -17,11 +17,59 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
-      - name: Unpack Android project
-        run: cat android-parts/part-* | base64 -d > /tmp/android-source.zip && unzip -q /tmp/android-source.zip
+      - name: Unpack base assets
+        run: cat android-parts/part-* | base64 -d > /tmp/android-source.zip && unzip -nq /tmp/android-source.zip
       - name: Build APK
         run: gradle -p android assembleDebug
+      - name: Verify APK
+        run: |
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/apksigner" verify --print-certs "$apk"
+          "$tools/aapt" dump badging "$apk" > /tmp/scale-apk-badging
+          grep -F "versionName='1.1'" /tmp/scale-apk-badging
+          grep -F "sdkVersion:'23'" /tmp/scale-apk-badging
+          unzip -tq "$apk"
+          for asset in offline/index.html offline/fonts.css splash/light.png splash/dark.png; do
+            unzip -p "$apk" "assets/$asset" > /tmp/scale-asset
+            test -s /tmp/scale-asset
+          done
       - uses: actions/upload-artifact@v4
         with:
-          name: ScaleConverter-Android-v1.0
+          name: ScaleConverter-Android-v1.1
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+      - name: Test launch and offline mode on Android
+        timeout-minutes: 9
+        shell: bash
+        run: |
+          sudo chmod a+rw /dev/kvm
+          image='system-images;android-35;google_apis;x86_64'
+          sdkmanager "$image"
+          echo no | avdmanager create avd --force --name scale-smoke --package "$image"
+          "$ANDROID_HOME/emulator/emulator" -avd scale-smoke -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > /tmp/scale-emulator.log 2>&1 &
+          trap 'tail -30 /tmp/scale-emulator.log; adb logcat -d -b crash' EXIT
+          adb wait-for-device
+          timeout 180 bash -c 'until [[ "$(adb shell getprop sys.boot_completed | tr -d "\r")" == 1 ]]; do sleep 3; done'
+          adb shell input keyevent 82
+          adb install android/app/build/outputs/apk/debug/app-debug.apk
+          adb shell wm size 540x960
+          adb shell wm density 240
+          adb shell settings put system font_scale 1.6
+          adb shell cmd connectivity airplane-mode enable
+          adb shell svc wifi disable
+          adb shell svc data disable
+          sleep 3
+          app=studio.pixelarchitecture.scaleconverter.android
+          for orientation in 0 1; do
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation "$orientation"
+            adb shell am force-stop "$app"
+            adb shell am start -W -n "$app/studio.pixelarchitecture.scaleconverter.MainActivity"
+            sleep 6
+            adb shell uiautomator dump /sdcard/scale-ui.xml
+            adb pull /sdcard/scale-ui.xml "/tmp/scale-ui-$orientation.xml"
+            grep -Fq 'نسخهٔ آفلاین فعال است' "/tmp/scale-ui-$orientation.xml"
+            grep -Fq 'android.webkit.WebView' "/tmp/scale-ui-$orientation.xml"
+            if grep -Fq 'در حال بارگذاری…' "/tmp/scale-ui-$orientation.xml"; then exit 1; fi
+          done
