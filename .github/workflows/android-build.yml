@@ -45,8 +45,15 @@ jobs:
         run: |
           sudo chmod a+rw /dev/kvm
           image='system-images;android-35;google_apis;x86_64'
-          sdkmanager "$image"
-          echo no | avdmanager create avd --force --name scale-smoke --package "$image"
+          sdkmanager="$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' -type f -print -quit 2>/dev/null || true)"
+          if [ -z "$sdkmanager" ]; then
+            curl -fsSL https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -o /tmp/scale-android-cli.zip
+            unzip -q /tmp/scale-android-cli.zip -d /tmp/scale-android-cli
+            sdkmanager=/tmp/scale-android-cli/cmdline-tools/bin/sdkmanager
+          fi
+          "$sdkmanager" --sdk_root="$ANDROID_HOME" "$image" emulator platform-tools
+          echo no | "${sdkmanager%/*}/avdmanager" create avd --force --name scale-smoke --package "$image"
+          export PATH="$ANDROID_HOME/platform-tools:$PATH"
           "$ANDROID_HOME/emulator/emulator" -avd scale-smoke -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect > /tmp/scale-emulator.log 2>&1 &
           trap 'tail -30 /tmp/scale-emulator.log; adb logcat -d -b crash' EXIT
           adb wait-for-device
